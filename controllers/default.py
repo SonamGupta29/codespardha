@@ -68,20 +68,34 @@ def manage():
 
 #This view will be used for hosting the contest
 def hostcontest():
+    session.wasOnAddContestForm = 1
     #Set the current logged in user id as the hosted by user id
     return dict(form=SQLFORM(db.ocj_contests).process())
 
-
+#This will be intermediate function for hosting the contest
 def addcontest():
-    #This will be intermediate function for hosting the contest
+    
+    """
+    This session variable will check if any user directly landed on this page or not
+    if he didnt come from last page then redirect him on the last page and ask to name the
+    contest first
+    """
+    if session.wasOnAddContestForm != 1:
+       redirect(URL('hostcontest'))    
+
+    session.wasOnAddContestForm = 0
+    """
+    Get the varilable from the last page and inser it into the database and get the id in return
+    """
     CName = request.vars['ContestName']
     ETime = request.vars['EndTime']
     STime = request.vars['StartTime']
     id = db.ocj_contests.insert(ContestName=CName, EndTime=ETime, StartTime=STime, HostedBy=auth.user_id)
+
     return locals()
 
 
-def getFilePath():
+def getFilePath():    
     record = db(db.ocj_contests_log.UserID == auth.user_id).select(orderby=~db.ocj_contests_log.UploadTime)[0]
     k = str(record['Code'])
     filePath = os.path.join(request.folder,'uploads',k)
@@ -90,7 +104,6 @@ def getFilePath():
         compilationStat = "Success"
     else:
         compilationStat = "Failure"
-
     return locals()
 
 
