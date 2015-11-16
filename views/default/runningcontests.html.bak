@@ -1,0 +1,13 @@
+{{extend 'layout.html'}}
+<h1>
+    Running Contests
+</h1>
+<table class = "table">
+    {{for row in rows:}}
+    <tr>
+        <td>
+            {{=row.ContestName}}
+        </td>
+    </tr>
+    {{pass}}
+</table>

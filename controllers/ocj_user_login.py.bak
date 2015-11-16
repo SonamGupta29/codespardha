@@ -1,0 +1,5 @@
+# -*- coding: utf-8 -*-
+# try something like
+def index():
+    form = SQLFORM(db.ocj_user_login).process()
+    return dict(message="hello from ocj_user_login.py")

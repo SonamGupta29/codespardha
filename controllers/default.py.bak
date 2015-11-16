@@ -1,0 +1,89 @@
+def index():
+    message='Code Spardha'
+    #form = SQLFORM(db.ocj_user_login).process()
+    return locals()
+
+def contests():
+    # This page will shoes the current running contests
+    rows = db(db.ocj_contests).select()
+    return locals()
+
+@auth.requires_login()
+def contestpage():
+    #This page will show the running contest problems
+
+    #Get the contest name
+    for f in db(db.ocj_contests.id == int(request.args[0])).select():
+        contestName = f.ContestName
+
+    # Get the current problems and show it to user
+    rows = db(db.ocj_contests_questions_1.ContestID == int(request.args[0])).select()
+    return locals()
+
+@auth.requires_login()
+def challenges():
+    #This function will display the question text
+    for f in db(db.ocj_contests_questions_1.id == request.args[0]).select():
+        QuestionText = f.QuestionText
+        QuestionName = f.QuestionName
+
+    #Set the current time stamp
+    db.ocj_contests_log.UploadTime.default = request.now
+    db.ocj_contests_log.UploadTime.writable = False
+    db.ocj_contests_log.UploadTime.readable = False
+
+    #Set the current logged in user
+    db.ocj_contests_log.UserID.default = auth.user_id
+    db.ocj_contests_log.UserID.writable = False
+    db.ocj_contests_log.UserID.readable = False
+
+    #Set the current question number
+    db.ocj_contests_log.QueNo.default = request.args[0]
+    db.ocj_contests_log.QueNo.writable = False
+    db.ocj_contests_log.QueNo.readable = False
+
+    form = SQLFORM(db.ocj_contests_log).process()
+    logs = db(db.ocj_contests_log).select()
+    return locals()
+
+@auth.requires_membership('host_admin')
+def manage():
+    grid = SQLFORM.grid(db.ocj_contests)
+    return locals()
+
+def user():
+    """
+    exposes:
+    http://..../[app]/default/user/login
+    http://..../[app]/default/user/logout
+    http://..../[app]/default/user/register
+    http://..../[app]/default/user/profile
+    http://..../[app]/default/user/retrieve_password
+    http://..../[app]/default/user/change_password
+    http://..../[app]/default/user/manage_users (requires membership in
+    http://..../[app]/default/user/bulk_register
+    use @auth.requires_login()
+        @auth.requires_membership('group name')
+        @auth.requires_permission('read','table name',record_id)
+    to decorate functions that need access control
+    """
+    return dict(form=auth())
+
+
+@cache.action()
+def download():
+    """
+    allows downloading of uploaded files
+    http://..../[app]/default/download/[filename]
+    """
+    return response.download(request, db)
+
+
+def call():
+    """
+    exposes services. for example:
+    http://..../[app]/default/call/jsonrpc
+    decorate with @services.jsonrpc the functions to expose
+    supports xml, json, xmlrpc, jsonrpc, amfrpc, rss, csv
+    """
+    return service()

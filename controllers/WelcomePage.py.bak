@@ -1,0 +1,3 @@
+def WelcomeMessage():
+    x = request.env.http_accept_encoding
+    return '<html><body><h1>%s</h1></body></html>' % x

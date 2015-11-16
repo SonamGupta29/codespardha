@@ -1,0 +1,4 @@
+db.define_table('ocj_contests',
+                Field('ContestName', 'string', requires=IS_NOT_EMPTY()),
+                Field('ContestStartTime', 'datetime', requires=IS_NOT_EMPTY()),
+                Field('ContestDuration', 'string', requires=IS_NOT_EMPTY()))

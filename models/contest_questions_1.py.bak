@@ -1,0 +1,6 @@
+# -*- coding: utf-8 -*-
+
+db.define_table('ocj_contests_questions',
+                Field('ContestID', 'number', requires=IS_NOT_EMPTY()),
+                Field('QueNo', 'number', requires=IS_NOT_EMPTY()),
+                Field('QuestionText', 'string', requires=IS_NOT_EMPTY()))

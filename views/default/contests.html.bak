@@ -1,0 +1,53 @@
+{{extend 'layout.html'}}
+<h1 id="smallHead">
+    Running Contests
+</h1>
+<br>
+<div id="mediumText">
+    <table class = "table">
+        <tr>
+            <th>Contest Name</th>
+            <th>End Date</th>
+            <th></th>
+        </tr>
+        {{for row in rows:}}
+        <tr>
+            <td>{{=row.ContestName}}</td>
+            <td>{{=row.StartTime}}</td>
+            <td>
+                <a href="{{=URL('contestpage',args=row.id)}}">
+                    <div style="height:100%;width:100%;color:Black">
+                      Take Challenge
+                    </div>
+                </a>
+            </td>
+        </tr>
+        {{pass}}
+    </table>
+</div>
+<h1 id="smallHead">
+    Upcoming Contests
+</h1>
+<br>
+<div id="mediumText">
+    <table class = "table">
+        <tr>
+            <th>Contest Name</th>
+            <th>End Date</th>
+            <th></th>
+        </tr>
+        {{for row in rows:}}
+        <tr>
+            <td>{{=row.ContestName}}</td>
+            <td>{{=row.StartTime}}</td>
+            <td>
+                <a href="{{=URL('contestpage',args=row.id)}}">
+                    <div style="height:100%;width:100%;color:Black">
+                      Take Challenge
+                    </div>
+                </a>
+            </td>
+        </tr>
+        {{pass}}
+    </table>
+</div>

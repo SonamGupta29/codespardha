@@ -1,0 +1,29 @@
+# -*- coding: utf-8 -*-
+
+# All Contest data- till now how many contest were or will get hosted will be in this table
+db.define_table('ocj_contests',
+                Field('ContestName', 'string', requires=IS_NOT_EMPTY()),
+                Field('StartTime', 'datetime', requires=IS_NOT_EMPTY()),
+                Field('EndTime', 'datetime', requires=IS_NOT_EMPTY()),
+                Field('HostedBy', 'integer', requires=IS_NOT_EMPTY()))
+
+#This table will contain the contest questions
+db.define_table('ocj_contests_questions_1',
+                Field('ContestID', 'integer', requires=IS_NOT_EMPTY()),
+                Field('QueNo', 'integer', requires=IS_NOT_EMPTY()),
+                Field('QuestionName', 'string', requires=IS_NOT_EMPTY()),
+                Field('QuestionText', 'string', requires=IS_NOT_EMPTY()),
+                Field('NoOfTestCases', 'integer', requires=IS_NOT_EMPTY()),
+                Field('TestCase1', 'upload'),
+                Field('Output1', 'upload'))
+
+
+#This table will contain the contest submissions login
+db.define_table('ocj_contests_log',
+                Field('ContestID', 'integer', requires=IS_NOT_EMPTY()),
+                Field('QueNo', 'integer', requires=IS_NOT_EMPTY()),
+                Field('UserID', 'string', requires=IS_NOT_EMPTY()),
+                Field('Code', 'upload', requires=IS_NOT_EMPTY()),
+                Field('UploadTime', 'datetime', requires=IS_NOT_EMPTY()),
+                Field('SubmissionResult', 'string', requires=IS_NOT_EMPTY()),
+                Field('ErrorType', 'string', requires=IS_NOT_EMPTY()))

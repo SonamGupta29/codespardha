@@ -1,0 +1,34 @@
+{{extend 'layout.html'}}
+<h1>
+    {{=QuestionName}}
+</h1>
+<hr>
+    {{=QuestionText}}
+<hr>
+<h4 class="col-md-12">
+    Submit answer
+</h4>
+<hr>
+{{=form}}
+<hr>
+<div class="box sidebar_inner controls well well-small">
+    <h4 class="box sidebar_inner controls well well-small">
+        Current activity
+    </h4>
+    <table class="table" >
+        <tr>
+            <th>Submission Time</th>
+            <th>User</th>
+            <th>Result</th>
+            <th>Score</th>
+        </tr>
+        {{for row in logs:}}
+        <tr>
+            <td>{{=row.UploadTime}}</td>
+            <td>{{=row.UserID}}</td>
+            <td>{{=row.ErrorType}}</td>
+            <td>{{=row.SubmissionResult}}</td>
+        </tr>
+        {{pass}}
+    </table>
+</div>

@@ -1,0 +1,54 @@
+{{extend 'layout.html'}}
+<h1 id="mediumtext">
+        {{=contestName}}
+</h1>
+<br>
+<table class="table">
+    <th></th>
+    <th>
+        Problem Name
+    </th>
+    <th>
+         Successful/Attempted
+    </th>
+    <th>
+        Attempt Problem
+    </th>
+    {{for row in rows:}}
+    <tr><td></td>
+        <td>
+            {{=row.QuestionName}}
+        </td>
+        <td>
+        </td>
+        <td>
+        <a href="{{=URL('challenges',args=row.id)}}">
+                    <div style="background-color: #B6B6B4;width: 30%;padding: 5px;border: 5px Black;margin: 5px; text-align:center ">
+                        Solve Problem
+                     </div>
+                </a>
+    </td>
+    </tr>
+    {{pass}}
+</table>
+<div class="box sidebar_inner controls well well-small">
+    <h4 class="box sidebar_inner controls well well-small">
+        Current activity
+    </h4>
+    <table class="table" >
+        <tr>
+            <th>Submission Time</th>
+            <th>User</th>
+            <th>Result</th>
+            <th>Score</th>
+        </tr>
+        {{for log in logs:}}
+        <tr>
+            <td>{{=log.UploadTime}}</td>
+            <td>{{=log.UserID}}</td>
+            <td>{{=log.ErrorType}}</td>
+            <td>{{=log.SubmissionResult}}</td>
+        </tr>
+        {{pass}}
+    </table>
+</div>
