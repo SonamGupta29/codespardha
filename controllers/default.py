@@ -3,10 +3,12 @@ def index():
     #form = SQLFORM(db.ocj_user_login).process()
     return locals()
 
+
 def contests():
     # This page will shoes the current running contests
     rows = db(db.ocj_contests).select()
     return locals()
+
 
 @auth.requires_login()
 def contestpage():
@@ -22,6 +24,8 @@ def contestpage():
     # This will return the all the submission of the current contest
     logs = db(db.ocj_contests_log).select()
     return locals()
+
+
 
 @auth.requires_login()
 def challenges():
@@ -49,22 +53,28 @@ def challenges():
     logs = db(db.ocj_contests_log).select()
     return locals()
 
+
+
+
 @auth.requires_membership('host_admin')
 def manage():
     grid = SQLFORM.grid(db.ocj_contests)
     return locals()
 
+
+
 #This view will be used for hosting the contest
 def hostcontest():
     #Set the current logged in user id as the hosted by user id
-    db.ocj_contests.HostedBy.default = auth.user_id
-    db.ocj_contests.HostedBy.writable = False
-    db.ocj_contests.HostedBy.readable = False
-
-    form = SQLFORM(db.ocj_contests).process()
+    return dict(form=SQLFORM(db.ocj_contests).process())
 
 
-    return locals()
+def addcontest():
+    #This will be intermediate function for hosting the contest
+    ContestName = request.vars['ContestName']
+    EndTime = request.vars['EndTime']
+    StartTime = request.vars['StartTime']
+    return locals()    
 
 def user():
     """

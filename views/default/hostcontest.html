@@ -1,8 +1,40 @@
 {{extend 'layout.html'}}
 
 <h3 align="center">
-    Contest Details
+    Create Contest
 </h3>
 <hr>
 <br>
-{{=form}}
+<h4>
+<div id="mediumText" class="pull-left">
+	Enter the contest details 
+</div>
+</h4>
+<br>
+<br>
+<form method="POST" action="addcontest">
+	<div style="margin-left:100px">
+		<table class="table">
+			<tr>
+				<td>Give Contest a Name</td>
+				<td><input class="form-control string" id="ocj_contests_ContestName" name="ContestName" type="text" value="" autocomplete="off" required  pattern=".{6,}" title="6 characters minimum"></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td>Start Time</td>
+				<td><input class="form-control datetime" id="ocj_contests_StartTime" name="StartTime" type="text" value="" autocomplete="off" required></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td>End Time </td>
+				<td><input class="form-control datetime" id="ocj_contests_EndTime" name="EndTime" type="text" value="" required></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td><input type="submit" value="Create Contest" class="btn-primary"></td>
+				<td></td>
+			</tr>
+		</table>
+	</div>
+</form>
