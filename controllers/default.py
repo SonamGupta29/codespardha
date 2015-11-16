@@ -54,6 +54,18 @@ def manage():
     grid = SQLFORM.grid(db.ocj_contests)
     return locals()
 
+#This view will be used for hosting the contest
+def hostcontest():
+    #Set the current logged in user id as the hosted by user id
+    db.ocj_contests.HostedBy.default = auth.user_id
+    db.ocj_contests.HostedBy.writable = False
+    db.ocj_contests.HostedBy.readable = False
+
+    form = SQLFORM(db.ocj_contests).process()
+
+
+    return locals()
+
 def user():
     """
     exposes:

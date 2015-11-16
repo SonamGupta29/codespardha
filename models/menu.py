@@ -29,4 +29,11 @@ response.menu = [
     (T('Running Contests'), False, URL('default', 'contests')),
 ]
 
+if auth.user:
+    groups = db((db.auth_membership.user_id==auth.user.id)&(db.auth_membership.group_id==db.auth_group.id)).select(db.auth_group.role)
+    for group in groups:
+        if group.role =='host_admin':
+            response.menu.append(('Host Contest', False, URL('hostcontest')))
+
+
 if "auth" in locals(): auth.wikimenu()

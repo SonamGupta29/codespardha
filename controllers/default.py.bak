@@ -18,6 +18,9 @@ def contestpage():
 
     # Get the current problems and show it to user
     rows = db(db.ocj_contests_questions_1.ContestID == int(request.args[0])).select()
+
+    # This will return the all the submission of the current contest
+    logs = db(db.ocj_contests_log).select()
     return locals()
 
 @auth.requires_login()
@@ -49,6 +52,21 @@ def challenges():
 @auth.requires_membership('host_admin')
 def manage():
     grid = SQLFORM.grid(db.ocj_contests)
+    return locals()
+
+#This view will be used for hosting the contest
+def hostcontest():
+    #Set the current logged in user id as the hosted by user id
+    db.ocj_contests.HostedBy.default = auth.user_id
+    db.ocj_contests.HostedBy.writable = False
+    db.ocj_contests.HostedBy.readable = False
+
+    form = SQLFORM(db.ocj_contests).process()
+
+    if form.accepted :
+        #Means the record is inserted in the table
+        #Get that id and send it to the next page
+
     return locals()
 
 def user():
