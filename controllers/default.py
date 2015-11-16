@@ -1,3 +1,6 @@
+import os
+
+
 def index():
     message='Code Spardha'
     #form = SQLFORM(db.ocj_user_login).process()
@@ -76,6 +79,20 @@ def addcontest():
     STime = request.vars['StartTime']
     id = db.ocj_contests.insert(ContestName=CName, EndTime=ETime, StartTime=STime, HostedBy=auth.user_id)
     return locals()
+
+
+def getFilePath():
+    record = db(db.ocj_contests_log.UserID == auth.user_id).select(orderby=~db.ocj_contests_log.UploadTime)[0]
+    k = str(record['Code'])
+    filePath = os.path.join(request.folder,'uploads',k)
+    runStatus = os.system("g++ "+str(filePath))
+    if runStatus == 0 :
+        compilationStat = "Success"
+    else:
+        compilationStat = "Failure"
+
+    return locals()
+
 
 def user():
     """
