@@ -71,10 +71,11 @@ def hostcontest():
 
 def addcontest():
     #This will be intermediate function for hosting the contest
-    ContestName = request.vars['ContestName']
-    EndTime = request.vars['EndTime']
-    StartTime = request.vars['StartTime']
-    return locals()    
+    CName = request.vars['ContestName']
+    ETime = request.vars['EndTime']
+    STime = request.vars['StartTime']
+    id = db.ocj_contests.insert(ContestName=CName, EndTime=ETime, StartTime=STime, HostedBy=auth.user_id)
+    return locals()
 
 def user():
     """
