@@ -2,28 +2,28 @@
 
 # All Contest data- till now how many contest were or will get hosted will be in this table
 db.define_table('ocj_contests',
-                Field('ContestName', 'string', requires=IS_NOT_EMPTY()),
-                Field('StartTime', 'datetime', requires=IS_NOT_EMPTY()),
-                Field('EndTime', 'datetime', requires=IS_NOT_EMPTY()),
-                Field('HostedBy', 'integer', requires=IS_NOT_EMPTY()))
+                Field('contestName', 'string', requires=IS_NOT_EMPTY()),
+                Field('startTime', 'datetime', requires=IS_NOT_EMPTY()),
+                Field('endTime', 'datetime', requires=IS_NOT_EMPTY()),
+                Field('hostedBy', 'integer', requires=IS_NOT_EMPTY()))
 
 #This table will contain the contest questions
-db.define_table('ocj_contests_questions_1',
-                Field('ContestID', 'integer', requires=IS_NOT_EMPTY()),
-                Field('QueNo', 'integer', requires=IS_NOT_EMPTY()),
-                Field('QuestionName', 'string', requires=IS_NOT_EMPTY()),
-                Field('QuestionText', 'string', requires=IS_NOT_EMPTY()),
-                Field('NoOfTestCases', 'integer', requires=IS_NOT_EMPTY()),
-                Field('TestCase1', 'upload'),
-                Field('Output1', 'upload'))
+db.define_table('ocj_contests_questions',
+                Field('contestID', 'integer', requires=IS_NOT_EMPTY()),
+                Field('questionNumber', 'integer', requires=IS_NOT_EMPTY()),
+                Field('questionName', 'string', requires=IS_NOT_EMPTY()),
+                Field('questionText', 'string', requires=IS_NOT_EMPTY()),
+                Field('noOfTestCases', 'integer', requires=IS_NOT_EMPTY()),
+                Field('testCase1', 'upload'),
+                Field('output1', 'upload'))
 
 
 #This table will contain the contest submissions login
 db.define_table('ocj_contests_log',
-                Field('ContestID', 'integer', requires=IS_NOT_EMPTY()),
-                Field('QueNo', 'integer', requires=IS_NOT_EMPTY()),
-                Field('UserID', 'string', requires=IS_NOT_EMPTY()),
-                Field('Code', 'upload', requires=IS_NOT_EMPTY()),
-                Field('UploadTime', 'datetime', requires=IS_NOT_EMPTY()),
-                Field('SubmissionResult', 'string', requires=IS_NOT_EMPTY()),
-                Field('ErrorType', 'string', requires=IS_NOT_EMPTY()))
+                Field('contestID', 'integer', requires=IS_NOT_EMPTY()),
+                Field('questionNumber', 'integer', requires=IS_NOT_EMPTY()),
+                Field('questionName', 'string', requires=IS_NOT_EMPTY()),
+                Field('userID', 'string', requires=IS_NOT_EMPTY()),
+                Field('code', 'upload', requires=IS_NOT_EMPTY()),
+                Field('submissionTime', 'datetime', requires=IS_NOT_EMPTY()),
+                Field('submissionResult', 'string', requires=IS_NOT_EMPTY()))

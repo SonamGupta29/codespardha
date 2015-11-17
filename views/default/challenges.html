@@ -17,17 +17,17 @@
     </h4>
     <table class="table" >
         <tr>
+            <th>Problem</th>
             <th>Submission Time</th>
             <th>User</th>
             <th>Result</th>
-            <th>Score</th>
         </tr>
         {{for row in logs:}}
         <tr>
-            <td>{{=row.UploadTime}}</td>
-            <td>{{=row.UserID}}</td>
-            <td>{{=row.ErrorType}}</td>
-            <td>{{=row.SubmissionResult}}</td>
+            <td>{{=row.questionName}}</td>
+            <td>{{=row.submissionTime}}</td>
+            <td>{{=row.userID}}</td>
+            <td>{{=row.submissionResult}}</td>
         </tr>
         {{pass}}
     </table>

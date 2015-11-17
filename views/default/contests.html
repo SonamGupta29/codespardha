@@ -12,8 +12,8 @@
         </tr>
         {{for row in rows:}}
         <tr>
-            <td>{{=row.ContestName}}</td>
-            <td>{{=row.StartTime}}</td>
+            <td>{{=row.contestName}}</td>
+            <td>{{=row.startTime}}</td>
             <td>
                 <a href="{{=URL('contestpage',args=row.id)}}">
                     <div style="height:100%;width:100%;color:Black">
@@ -38,8 +38,8 @@
         </tr>
         {{for row in rows:}}
         <tr>
-            <td>{{=row.ContestName}}</td>
-            <td>{{=row.StartTime}}</td>
+            <td>{{=row.contestName}}</td>
+            <td>{{=row.startTime}}</td>
             <td>
                 <a href="{{=URL('contestpage',args=row.id)}}">
                     <div style="height:100%;width:100%;color:Black">
@@ -51,3 +51,4 @@
         {{pass}}
     </table>
 </div>
+    

@@ -19,13 +19,13 @@ def contestpage():
 
     #Get the contest name
     for f in db(db.ocj_contests.id == int(request.args[0])).select():
-        contestName = f.ContestName
+        cName = f.contestName
 
     # Get the current problems and show it to user
-    rows = db(db.ocj_contests_questions_1.ContestID == int(request.args[0])).select()
+    rows = db(db.ocj_contests_questions.contestID == int(request.args[0])).select()
 
     # This will return the all the submission of the current contest
-    logs = db(db.ocj_contests_log).select()
+    logs = db(db.ocj_contests_log.contestID == int(request.args[0])).select(orderby=~db.ocj_contests_log.submissionTime)
     return locals()
 
 
@@ -33,45 +33,53 @@ def contestpage():
 @auth.requires_login()
 def challenges():
     #This function will display the question text
-    for f in db(db.ocj_contests_questions_1.id == request.args[0]).select():
-        QuestionText = f.QuestionText
-        QuestionName = f.QuestionName
+    for f in db(db.ocj_contests_questions.id == request.args[0]).select():
+        QuestionText = f.questionText
+        QuestionName = f.questionName
 
     #Set the current time stamp
-    db.ocj_contests_log.UploadTime.default = request.now
-    db.ocj_contests_log.UploadTime.writable = False
-    db.ocj_contests_log.UploadTime.readable = False
+    db.ocj_contests_log.submissionTime.default = request.now
+    db.ocj_contests_log.submissionTime.writable = False
+    db.ocj_contests_log.submissionTime.readable = False
 
     #Set the current logged in user
-    db.ocj_contests_log.UserID.default = auth.user_id
-    db.ocj_contests_log.UserID.writable = False
-    db.ocj_contests_log.UserID.readable = False
+    db.ocj_contests_log.userID.default = auth.user_id
+    db.ocj_contests_log.userID.writable = False
+    db.ocj_contests_log.userID.readable = False
 
     #Set the current question number
-    db.ocj_contests_log.QueNo.default = request.args[0]
-    db.ocj_contests_log.QueNo.writable = False
-    db.ocj_contests_log.QueNo.readable = False
+    db.ocj_contests_log.questionNumber.default = request.args[0]
+    db.ocj_contests_log.questionNumber.writable = False
+    db.ocj_contests_log.questionNumber.readable = False
 
+    # This will show the question submission log
     form = SQLFORM(db.ocj_contests_log).process()
-    logs = db(db.ocj_contests_log).select()
+    logs = db((db.ocj_contests_log.contestID == int(request.args[0])) & \
+                (db.ocj_contests_log.questionNumber == int(request.args[1]))).\
+                select(orderby=~db.ocj_contests_log.submissionTime)
+
     return locals()
 
 
 
-
+@auth.requires_login()
 @auth.requires_membership('host_admin')
 def manage():
     grid = SQLFORM.grid(db.ocj_contests)
     return locals()
 
 
-
+@auth.requires_login()
+@auth.requires_membership('host_admin')
 #This view will be used for hosting the contest
-def hostcontest():
+def hostcontest():  
     session.wasOnAddContestForm = 1
     #Set the current logged in user id as the hosted by user id
     return dict(form=SQLFORM(db.ocj_contests).process())
 
+
+@auth.requires_login()
+@auth.requires_membership('host_admin')
 #This will be intermediate function for hosting the contest
 def addcontest():
     
@@ -83,21 +91,21 @@ def addcontest():
     if session.wasOnAddContestForm != 1:
        redirect(URL('hostcontest'))    
 
-    session.wasOnAddContestForm = 0
+    session.wasOnAddContestForm = 0 
     """
     Get the varilable from the last page and inser it into the database and get the id in return
     """
-    CName = request.vars['ContestName']
-    ETime = request.vars['EndTime']
-    STime = request.vars['StartTime']
-    id = db.ocj_contests.insert(ContestName=CName, EndTime=ETime, StartTime=STime, HostedBy=auth.user_id)
+    CName = request.vars['contestName']
+    ETime = request.vars['endTime']
+    STime = request.vars['startTime']
+    id = db.ocj_contests.insert(contestName=CName, endTime=ETime, startTime=STime, hostedBy=auth.user_id)
 
     return locals()
 
 
 def getFilePath():    
-    record = db(db.ocj_contests_log.UserID == auth.user_id).select(orderby=~db.ocj_contests_log.UploadTime)[0]
-    k = str(record['Code'])
+    record = db(db.ocj_contests_log.userID == auth.user_id).select(orderby=~db.ocj_contests_log.submissionTime)[0]
+    k = str(record['code'])
     filePath = os.path.join(request.folder,'uploads',k)
     runStatus = os.system("g++ "+str(filePath))
     if runStatus == 0 :

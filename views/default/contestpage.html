@@ -1,6 +1,6 @@
 {{extend 'layout.html'}}
 <h1 id="mediumtext">
-        {{=contestName}}
+        {{=cName}}
 </h1>
 <br>
 <table class="table">
@@ -17,12 +17,12 @@
     {{for row in rows:}}
     <tr><td></td>
         <td>
-            {{=row.QuestionName}}
+            {{=row.questionName}}
         </td>
         <td>
         </td>
         <td>
-        <a href="{{=URL('challenges',args=row.id)}}">
+        <a href="{{=URL('challenges',args=[row.id,row.questionNumber])}}">
                     <div style="background-color: #B6B6B4;width: 30%;padding: 5px;border: 5px Black;margin: 5px; text-align:center ">
                         Solve Problem
                      </div>
@@ -33,21 +33,21 @@
 </table>
 <div class="box sidebar_inner controls well well-small">
     <h4 class="box sidebar_inner controls well well-small">
-        Current activity
+        Contest Leaderboard
     </h4>
     <table class="table" >
         <tr>
+            <th>Problem</th>
             <th>Submission Time</th>
             <th>User</th>
             <th>Result</th>
-            <th>Score</th>
         </tr>
         {{for log in logs:}}
         <tr>
-            <td>{{=log.UploadTime}}</td>
-            <td>{{=log.UserID}}</td>
-            <td>{{=log.ErrorType}}</td>
-            <td>{{=log.SubmissionResult}}</td>
+            <td>{{=log.questionName}}</td>
+            <td>{{=log.submissionTime}}</td>
+            <td>{{=log.userID}}</td>
+            <td>{{=log.submissionResult}}</td>
         </tr>
         {{pass}}
     </table>
