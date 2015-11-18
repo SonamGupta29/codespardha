@@ -15,11 +15,14 @@
         Attempt Problem
     </th>
     {{for row in rows:}}
-    <tr><td></td>
+    <tr>
+        <td></td>
         <td>
             {{=row.questionName}}
         </td>
-        <td>
+        <td >
+            {{=success}} /
+            {{=attempted}}
         </td>
         <td>
         <a href="{{=URL('challenges',args=[row.id,row.questionNumber])}}">

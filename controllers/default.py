@@ -26,12 +26,17 @@ def contestpage():
 
     # This will return the all the submission of the current contest
     logs = db(db.ocj_contests_log.contestID == int(request.args[0])).select(orderby=~db.ocj_contests_log.submissionTime)
+
+    success = 10
+    attempted = 1000
+
     return locals()
 
 
 
 @auth.requires_login()
 def challenges():
+    session.isFromChallengesPage = 1
     #This function will display the question text
     for f in db(db.ocj_contests_questions.id == request.args[0]).select():
         QuestionText = f.questionText
@@ -57,6 +62,44 @@ def challenges():
     logs = db((db.ocj_contests_log.contestID == int(request.args[0])) & \
                 (db.ocj_contests_log.questionNumber == int(request.args[1]))).\
                 select(orderby=~db.ocj_contests_log.submissionTime)
+
+    contestID = request.args[0]
+    questionNumber = request.args[1]
+    return locals()
+
+
+
+#This function will be used to process the submission from here we can compile and run function
+@auth.requires_login()
+def processSubmission():
+
+    qNumber = request.vars['questionNumber']
+    cID = request.vars['contestID']
+    cFile = request.vars['submissionFile']
+    qName = request.vars['questionName']
+
+    """
+    Insert record in the log table and make the submission status as evaluating
+    """
+    """ 
+    And this will only happen if the page is came from last page not refreshed, 
+    coz page refresh will insert duplicate page
+    """
+    if session.isFromChallengesPage == 1:
+        id = db.ocj_contests_log.insert(questionNumber = qNumber, contestID = cID, \
+                                    code = cFile, questionName = qName, \
+                                    userID = auth.user_id, submissionTime = request.now, \
+                                    submissionResult = "Evaluating")
+        session.isFromChallengesPage = 0
+
+
+
+    rows = db((db.ocj_contests_log.contestID == cID) & \
+                (db.ocj_contests_log.questionNumber == qNumber) &
+                (db.ocj_contests_log.userID == auth.user_id)).\
+                select(orderby=~db.ocj_contests_log.submissionTime)
+
+
 
     return locals()
 
