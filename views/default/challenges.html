@@ -11,6 +11,13 @@
 <hr>
 <!-- Adding my own custom form. This will take the code file from the user and submit it to the processSubmission() function this will compile and run the code file and update the log table  -->
 
+<div class="box sidebar_inner controls well well-small">
+    {{=form}}
+</div>
+
+
+
+<!-- Removing the part as the file is not getting uploaded
 <form method="POST" action="../../processSubmission">
     <input type="hidden" value={{=contestID}} name="contestID">
     <input type="hidden" value={{=questionNumber}} name="questionNumber">
@@ -28,6 +35,7 @@
         </table>
     </div>
 </form>
+-->
 
 <hr>
 <div class="box sidebar_inner controls well well-small">

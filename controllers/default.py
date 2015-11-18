@@ -36,6 +36,7 @@ def contestpage():
 
 @auth.requires_login()
 def challenges():
+
     session.isFromChallengesPage = 1
     #This function will display the question text
     for f in db(db.ocj_contests_questions.id == request.args[0]).select():
@@ -52,10 +53,25 @@ def challenges():
     db.ocj_contests_log.userID.writable = False
     db.ocj_contests_log.userID.readable = False
 
-    #Set the current question number
-    db.ocj_contests_log.questionNumber.default = request.args[0]
+    #Set the current contest id
+    db.ocj_contests_log.contestID.default = request.args[0]
+    db.ocj_contests_log.contestID.writable = False
+    db.ocj_contests_log.contestID.readable = False
+
+    #Set the current question no
+    db.ocj_contests_log.questionNumber.default = request.args[1]
     db.ocj_contests_log.questionNumber.writable = False
     db.ocj_contests_log.questionNumber.readable = False
+
+    #Set the current Submission result as evaluating
+    db.ocj_contests_log.submissionResult.default = 'Evaluating'
+    db.ocj_contests_log.submissionResult.writable = False
+    db.ocj_contests_log.submissionResult.readable = False
+
+    #Set the current Submission result as evaluating
+    db.ocj_contests_log.questionName.default = request.args[2]
+    db.ocj_contests_log.questionName.writable = False
+    db.ocj_contests_log.questionName.readable = False
 
     # This will show the question submission log
     form = SQLFORM(db.ocj_contests_log).process()
@@ -65,6 +81,8 @@ def challenges():
 
     contestID = request.args[0]
     questionNumber = request.args[1]
+    if form.accepted:
+         redirect(URL('processSubmission'))
     return locals()
 
 
@@ -115,7 +133,7 @@ def manage():
 @auth.requires_login()
 @auth.requires_membership('host_admin')
 #This view will be used for hosting the contest
-def hostcontest():  
+def hostcontest():
     session.wasOnAddContestForm = 1
     #Set the current logged in user id as the hosted by user id
     return dict(form=SQLFORM(db.ocj_contests).process())

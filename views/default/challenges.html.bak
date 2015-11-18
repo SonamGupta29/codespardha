@@ -9,7 +9,34 @@
     Submit answer
 </h4>
 <hr>
-{{=form}}
+<!-- Adding my own custom form. This will take the code file from the user and submit it to the processSubmission() function this will compile and run the code file and update the log table  -->
+
+<div class="box sidebar_inner controls well well-small">
+    {{=form}}
+</div>
+
+
+
+<!-- Removing the part as the file is not getting uploaded
+<form method="POST" action="../../processSubmission">
+    <input type="hidden" value={{=contestID}} name="contestID">
+    <input type="hidden" value={{=questionNumber}} name="questionNumber">
+    <input type="hidden" value={{=QuestionName}} name="questionName">
+    <div class="box sidebar_inner controls well well-small">
+        <table class="table">
+            <br> 
+            <tr >
+                <td width="200"></td>
+                <td><input class="form-control string" id="submissionFile" name="submissionFile" type="file" value="" accept=".cpp, .c"></td>
+                <td></td>
+                <td><input type="submit" value="Submit Solution" class="btn-primary"></td>
+                <td></td>
+            </tr>
+        </table>
+    </div>
+</form>
+-->
+
 <hr>
 <div class="box sidebar_inner controls well well-small">
     <h4 class="box sidebar_inner controls well well-small">
@@ -17,17 +44,17 @@
     </h4>
     <table class="table" >
         <tr>
+            <th>Problem</th>
             <th>Submission Time</th>
             <th>User</th>
             <th>Result</th>
-            <th>Score</th>
         </tr>
         {{for row in logs:}}
         <tr>
-            <td>{{=row.UploadTime}}</td>
-            <td>{{=row.UserID}}</td>
-            <td>{{=row.ErrorType}}</td>
-            <td>{{=row.SubmissionResult}}</td>
+            <td>{{=row.questionName}}</td>
+            <td>{{=row.submissionTime}}</td>
+            <td>{{=row.userID}}</td>
+            <td>{{=row.submissionResult}}</td>
         </tr>
         {{pass}}
     </table>
