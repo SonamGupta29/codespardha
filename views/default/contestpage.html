@@ -34,16 +34,21 @@
     </tr>
     {{pass}}
 </table>
-<div class="box sidebar_inner controls well well-small">
-    <h4 class="box sidebar_inner controls well well-small">
-        Contest Leaderboard
-    </h4>
-    <table class="table" >
-        <tr>
-            <th>Problem</th>
-            <th>Submission Time</th>
-            <th>User</th>
-            <th>Result</th>
+
+<br>
+<br>
+<br>
+
+<div class="container col-lg-8" style="letter-spacing: 2px; margin-left:15%" >
+    <div class="panel panel-info" style="text-align: center"  >
+        <div class="panel-heading lead text-uppercase" style="letter-spacing: 8px;"> Contest Leaderboard</div>
+        <div class="panel-body text-info">
+            <table class="table table-striped">
+              <tr>
+                <td><b>Problem</b></td>
+            <td><b>Submission Time</b></td>
+            <td><b>User</b></td>
+            <td><b>Result</b></td>
         </tr>
         {{for log in logs:}}
         <tr>
@@ -53,5 +58,8 @@
             <td>{{=log.submissionResult}}</td>
         </tr>
         {{pass}}
-    </table>
+            </table>
+        </div>
+    </div>
 </div>
+
