@@ -1,0 +1,149 @@
+{{extend 'layout.html'}}
+
+<script type="text/javascript">
+	function onclick()
+	{
+
+	}
+
+</script>
+
+<h3 align="center" class="box sidebar_inner controls well well-small">
+    Contest Details
+</h3>
+
+<br>
+<form method="POST" action="addContestDetails">
+	<input type="hidden" name="Contestid" value={{=id}}>
+	<div class="box sidebar_inner controls well well-small" align="center">
+		<div style="margin-left:100px">
+			<table class="table">
+				<tr>
+					<td>Number of Problems</td>	
+					<td><input type="number" id="ocj_contests_ContestName" name="c	ontestName" type="text" value="" autocomplete="off" min="1" max="10" 	></td>
+					<td><div class="">Maximum 10 problems</td>
+				</tr>
+			</table>
+		</div>
+		<!--Need to dynamic on the basis of the selected number of problems-->
+		<div class="box sidebar_inner controls well well-small" id="mediumText">
+			Problem 1
+		</div>
+		<table width ="100%">
+			<tr height="10px">
+				<td>Problem Name</td>
+				<td><input type="text" name="questionName"></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td height="100">Problem Text</td>
+				<td><textarea rows="4" cols="50" name="questionText_1">
+					Enter question text here...</textarea>
+				</td>
+				<td></td>
+			</tr>
+			<tr>
+				<td>Number of Test cases</td>
+				<td><input type="number" name="noOfTestCases_1" min="1" max="10" 	></td>
+				</td>
+				<td>Maximum 10 Test cases</td>
+			</tr>
+			<tr>
+				<td height="50">Test case 1</td>
+				<td><input type="file" name="testCase_1_1" accept=".txt"></td>
+				</td>
+				<td>Answer to Test Case 1</td>
+				<td><input type="file" name="testCaseAns_1_1" accept=".txt"></td>
+			</tr>
+			<tr>
+				<td height="50">Test case 2</td>
+				<td><input type="file" name="testCase_1_2" accept=".txt"></td>
+				</td>
+				<td>Answer to Test Case 2</td>
+				<td><input type="file" name="testCaseAns_1_2" accept=".txt"></td>
+			</tr>
+			<tr>
+				<td height="50">Test case 3</td>
+				<td><input type="file" name="testCase_1_3" accept=".txt"></td>
+				</td>
+				<td>Answer to Test Case 3</td>
+				<td><input type="file" name="testCaseAns_1_3" accept=".txt"></td>
+			</tr>
+			<tr>
+				<td height="50">Test case 4</td>
+				<td><input type="file" name="testCase_1_4" accept=".txt"></td>
+				</td>
+				<td>Answer to Test Case 4</td>
+				<td><input type="file" name="testCaseAns_1_4" accept=".txt"></td>
+			</tr>
+			<tr>
+				<td height="50">Test case 5</td>
+				<td><input type="file" name="testCase_1_5" accept=".txt"></td>
+				</td>
+				<td>Answer to Test Case 5</td>
+				<td><input type="file" name="testCaseAns_1_5" accept=".txt"></td>
+			</tr>
+
+		</table>
+		<br>
+		<!--Need to dynamic on the basis of the selected number of problems-->
+		<div class="box sidebar_inner controls well well-small" id="mediumText">
+			Problem 2
+		</div>
+		<table width ="100%">
+			<tr height="10px">
+				<td>Problem Name</td>
+				<td><input type="text" name="questionName"></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td height="100">Problem Text</td>
+				<td><textarea rows="4" cols="50" name="questionText_2">
+					Enter text here...</textarea>
+				</td>
+				<td></td>
+			</tr>
+			<tr>
+				<td>Number of Test cases</td>
+				<td><input type="number" name="noOfTestCases_2" min="1" max="10" 	></td>
+				</td>
+				<td>Maximum 10 Test cases</td>
+			</tr>
+			<tr>
+				<td height="50">Test case 1</td>
+				<td><input type="file" name="testCase_2_1" accept=".txt"></td>
+				</td>
+				<td>Answer to Test Case 1</td>
+				<td><input type="file" name="testCaseAns_2_1" accept=".txt"></td>
+			</tr>
+			<tr>
+				<td height="50">Test case 2</td>
+				<td><input type="file" name="testCase_2_2" accept=".txt"></td>
+				</td>
+				<td>Answer to Test Case 2</td>
+				<td><input type="file" name="testCaseAns_2_2" accept=".txt"></td>
+			</tr>
+			<tr>
+				<td height="50">Test case 3</td>
+				<td><input type="file" name="testCase_2_3" accept=".txt"></td>
+				</td>
+				<td>Answer to Test Case 3</td>
+				<td><input type="file" name="testCaseAns_2_3" accept=".txt"></td>
+			</tr>
+			<tr>
+				<td height="50">Test case 4</td>
+				<td><input type="file" name="testCase_2_4" accept=".txt"></td>
+				</td>
+				<td>Answer to Test Case 4</td>
+				<td><input type="file" name="testCaseAns_2_4" accept=".txt"></td>
+			</tr>
+			<tr>
+				<td height="50">Test case 5</td>
+				<td><input type="file" name="testCase_2_5" accept=".txt"></td>
+				</td>
+				<td>Answer to Test Case 5</td>
+				<td><input type="file" name="testCaseAns_2_5" accept=".txt"></td>
+			</tr>
+		</table>
+		</div>
+</form>

@@ -1,15 +1,40 @@
 import os
 
 
+
+
 def index():
+    message='Code Spardha'
+    session.userName = db(db.auth_user == auth.user_id).select(db.auth_user.first_name)[0].first_name
+
+    activity = db(db.ocj_contests_log.userID == auth.user_id).select(orderby=~db.ocj_contests_log.submissionTime)[:3]
+
+    submissionCount = len(db(db.ocj_contests_log.userID == auth.user_id).select())
+
+    successfulCount = db((db.ocj_contests_log.userID == auth.user_id) & \
+                            db.ocj_contests_log.submissionResult == str('Successful')).select().count()
+
+    wrongAnswerCount = len((db(db.ocj_contests_log.userID == auth.user_id) & \
+                            db.ocj_contests_log.submissionResult == string('Successful')).select())
+    compileErrorCount = len((db(db.ocj_contests_log.userID == auth.user_id) & \
+                            db.ocj_contests_log.submissionResult == str('Successful')).select())
+    TLECount = len((db(db.ocj_contests_log.userID == auth.user_id) & \
+                            db.ocj_contests_log.submissionResult == string('Successful')).select())
+    #form = SQLFORM(db.ocj_user_login).process()
+    return locals()
+
+def home():
     message='Code Spardha'
     #form = SQLFORM(db.ocj_user_login).process()
     return locals()
 
-
 def contests():
     # This page will shoes the current running contests
-    rows = db(db.ocj_contests).select()
+    runningContests = db((db.ocj_contests.startTime < request.now)& \
+                         (db.ocj_contests.endTime > request.now)).select()
+
+    upcomingContest = db(db.ocj_contests.startTime > request.now).select()
+
     return locals()
 
 
@@ -62,11 +87,16 @@ def challenges():
     db.ocj_contests_log.questionNumber.default = request.args[1]
     db.ocj_contests_log.questionNumber.writable = False
     db.ocj_contests_log.questionNumber.readable = False
-    
+
     #Set the current Submission result as evaluating
     db.ocj_contests_log.submissionResult.default = 'Evaluating'
     db.ocj_contests_log.submissionResult.writable = False
     db.ocj_contests_log.submissionResult.readable = False
+
+    #Set the current Submission result as evaluating
+    db.ocj_contests_log.questionName.default = request.args[2]
+    db.ocj_contests_log.questionName.writable = False
+    db.ocj_contests_log.questionName.readable = False
 
     # This will show the question submission log
     form = SQLFORM(db.ocj_contests_log).process()
@@ -145,9 +175,9 @@ def addcontest():
     contest first
     """
     if session.wasOnAddContestForm != 1:
-       redirect(URL('hostcontest'))    
+       redirect(URL('hostcontest'))
 
-    session.wasOnAddContestForm = 0 
+    session.wasOnAddContestForm = 0     
     """
     Get the varilable from the last page and inser it into the database and get the id in return
     """
@@ -157,6 +187,30 @@ def addcontest():
     id = db.ocj_contests.insert(contestName=CName, endTime=ETime, startTime=STime, hostedBy=auth.user_id)
 
     return locals()
+
+
+def addContestDetails():
+
+    contestID = request.vars['contestID']
+    questionNumber = request.vars['questionNumber']
+    questionName = request.vars['questionName']
+    contestName = request.vars['contestpage']   
+    questionText_1 = request.vars['questionText_1']
+    noOfTestCases_1 = request.vars['noOfTestCases_1']
+    testCase_1_1 = request.vars['testCase_1_1']
+    testCaseAns_1_1 = request.vars['testCaseAns_1_1']
+
+    id = db.ocj_contests_questions.insert(  contestID = contestID,   \
+                                            questionNumber = questionNumber, \
+                                            questionName = questionName, \
+                                            questionText = questionText_1, \
+                                            noOfTestCases = noOfTestCases_1, \
+                                            testCase1 = testCase_1_1, \
+                                            output1 = testCaseAns_1_1 )
+
+    return locals()
+
+
 
 
 def getFilePath():    
@@ -169,6 +223,10 @@ def getFilePath():
     else:
         compilationStat = "Failure"
     return locals()
+
+
+
+
 
 
 def user():

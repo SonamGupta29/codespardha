@@ -25,13 +25,16 @@
             	<td>{{=row.submissionTime}}</td>
             	<td>
             		<script type="text/javascript">
-            		if("{{=row.submissionResult}}" == "Evaluating")
-						{
-							var elem = document.createElement("img");
-							elem.setAttribute("height", "20");
-							elem.setAttribute("width", "20");
-							document.getElementById("loader").appendChild(elem);
-							elem.src = '../static/images/loader.gif';
+                        if (document.getElementById("loader").childNodes.length == 0) 
+                        {
+                            if("{{=row.submissionResult}}" == "Evaluating")
+                            {
+                                var elem = document.createElement("img");
+                                elem.setAttribute("height", "20");
+                                elem.setAttribute("width", "20");
+                                document.getElementById("loader").appendChild(elem);
+                                elem.src = '../static/images/loader.gif';
+                            }
 						}
 					</script>
 					<div id="loader"></div>

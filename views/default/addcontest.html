@@ -13,14 +13,14 @@
 </h3>
 
 <br>
-<form method="POST" action="addContestDetails">
-	<input type="hidden" name="Contestid" value={{=id}}>
+<form method="POST" action="addContestDetails" enctype="multipart/form-data">
+	<input type="hidden" name="contestID" value="{{=id}}">
 	<div class="box sidebar_inner controls well well-small" align="center">
 		<div style="margin-left:100px">
 			<table class="table">
 				<tr>
 					<td>Number of Problems</td>	
-					<td><input type="number" id="ocj_contests_ContestName" name="c	ontestName" type="text" value="" autocomplete="off" min="1" max="10" 	></td>
+					<td><input type="number" id="ocj_contests_ContestName" name="contestName" type="text" value="" autocomplete="off" min="1" max="10" 	></td>
 					<td><div class="">Maximum 10 problems</td>
 				</tr>
 			</table>
@@ -29,6 +29,7 @@
 		<div class="box sidebar_inner controls well well-small" id="mediumText">
 			Problem 1
 		</div>
+		<input type="hidden" name="questionNumber" value="1">
 		<table width ="100%">
 			<tr height="10px">
 				<td>Problem Name</td>
@@ -146,4 +147,5 @@
 			</tr>
 		</table>
 		</div>
+		<input type="submit" name="submit" value="submit">
 </form>

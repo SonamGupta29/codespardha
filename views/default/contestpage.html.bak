@@ -34,6 +34,22 @@
     </tr>
     {{pass}}
 </table>
+
+{{for i,row in enumerate(logs):}}
+{{if i==items_per_page: break}}
+{{=row.value}}<br />
+{{pass}}
+
+{{if page:}}
+<a href="{{=URL(args=[row.id,row.questionNumber,row.questionName,page-1])}}">previous</a>
+{{pass}}
+
+{{if len(logs)>items_per_page:}}
+<a href="{{=URL(args=[page+1])}}">next</a>
+{{pass}}
+
+
+
 <div class="box sidebar_inner controls well well-small">
     <h4 class="box sidebar_inner controls well well-small">
         Contest Leaderboard

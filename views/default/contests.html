@@ -1,4 +1,9 @@
 {{extend 'layout.html'}}
+
+
+
+
+
 <h1 id="smallHead">
     Running Contests
 </h1>
@@ -10,7 +15,7 @@
             <th>End Date</th>
             <th></th>
         </tr>
-        {{for row in rows:}}
+        {{for row in runningContests:}}
         <tr>
             <td>{{=row.contestName}}</td>
             <td>{{=row.startTime}}</td>
@@ -25,6 +30,7 @@
         {{pass}}
     </table>
 </div>
+
 <h1 id="smallHead">
     Upcoming Contests
 </h1>
@@ -36,7 +42,7 @@
             <th>End Date</th>
             <th></th>
         </tr>
-        {{for row in rows:}}
+        {{for row in upcomingContest:}}
         <tr>
             <td>{{=row.contestName}}</td>
             <td>{{=row.startTime}}</td>
