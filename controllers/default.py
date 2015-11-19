@@ -1,5 +1,5 @@
 import os
-
+import commands
 
 
 @auth.requires_login()
@@ -67,7 +67,7 @@ def challenges():
 
     session.isFromChallengesPage = 1
     #This function will display the question text
-    for f in db(db.ocj_contests_questions.id == request.args[0]).select():
+    for f in db(db.ocj_contests_questions.contestID == request.args[0]).select():
         QuestionText = f.questionText
         QuestionName = f.questionName
 
@@ -249,7 +249,7 @@ def getFilePath():
     #0-Success 1-CTE 2-RTE 3-TLE
     #row = db(db.ocj_contests_log.userID==auth.user_id).select(orderby=~db.ocj_contests_log.submissionTime).first()
     #row.update_record(submissionResult=CurrStatus)
-    #eturn locals()
+    #return locals()
     return CurrStatus
 
 
