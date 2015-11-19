@@ -1,60 +1,51 @@
 {{extend 'layout.html'}}
 
-
-
-
-
-<h1 id="smallHead">
-    Running Contests
-</h1>
+<br>    
 <br>
-<div id="mediumText">
-    <table class = "table">
-        <tr>
-            <th>Contest Name</th>
-            <th>End Date</th>
-            <th></th>
-        </tr>
-        {{for row in runningContests:}}
-        <tr>
-            <td>{{=row.contestName}}</td>
-            <td>{{=row.startTime}}</td>
-            <td>
-                <a href="{{=URL('contestpage',args=row.id)}}">
-                    <div style="height:100%;width:100%;color:Black">
-                      Take Challenge
-                    </div>
-                </a>
-            </td>
-        </tr>
-        {{pass}}
-    </table>
+<div class="container col-lg-8" style="letter-spacing: 2px; margin-left:15%" >
+    <div class="panel panel-info" style="text-align: center"  >
+        <div class="panel-heading lead text-uppercase" style="letter-spacing: 8px;">Running Contests</div>
+        <div class="panel-body text-info">
+            <table class="table table-striped">
+                <tr>
+                    <td><b>Contest Name</b></td>
+                    <td><b>End Date</b></td>
+                    <td></td>
+                </tr>
+                {{for row in runningContests:}}
+                <tr>
+                    <td>{{=row.contestName}}</td>
+                    <td>{{=row.startTime}}</td>
+                    <td>
+                        <a href="{{=URL('contestpage',args=row.id)}}">Enter Contest</a>
+                    </td>
+                </tr>
+                {{pass}}
+            </table>
+        </div>
+    </div>
 </div>
 
-<h1 id="smallHead">
-    Upcoming Contests
-</h1>
-<br>
-<div id="mediumText">
-    <table class = "table">
-        <tr>
-            <th>Contest Name</th>
-            <th>End Date</th>
-            <th></th>
-        </tr>
-        {{for row in upcomingContest:}}
-        <tr>
-            <td>{{=row.contestName}}</td>
-            <td>{{=row.startTime}}</td>
-            <td>
-                <a href="{{=URL('contestpage',args=row.id)}}">
-                    <div style="height:100%;width:100%;color:Black">
-                      Take Challenge
-                    </div>
-                </a>
-            </td>
-        </tr>
-        {{pass}}
-    </table>
+<div class="container col-lg-8" style="letter-spacing: 2px;margin-left:15%" >
+    <div class="panel panel-info" style="text-align: center"  >
+        <div class="panel-heading lead text-uppercase" style="letter-spacing: 8px;">Upcoming Contests</div>
+        <div class="panel-body text-info">
+            <table class="table table-striped">
+                <tr>
+                    <td><b>Contest Name</b></td>
+                    <td><b>End Date</b></td>
+                    <td></td>
+                </tr>   
+                {{for row in upcomingContest:}}
+                <tr>
+                    <td>{{=row.contestName}}</td>
+                    <td>{{=row.startTime}}</td>
+                    <td border="2">
+                        <a href="{{=URL('contestpage',args=row.id)}}">Enter Contest</a>
+                    </td>
+                </tr>
+                {{pass}}
+            </table>
+        </div>
+    </div>
 </div>
-    
