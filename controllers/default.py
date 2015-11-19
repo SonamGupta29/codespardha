@@ -131,11 +131,12 @@ def processSubmission():
     And this will only happen if the page is came from last page not refreshed, 
     coz page refresh will insert duplicate page
     """
+    CurrStatus = getFilePath()
     if session.isFromChallengesPage == 1:
         id = db.ocj_contests_log.insert(questionNumber = qNumber, contestID = cID, \
                                     code = cFile, questionName = qName, \
                                     userID = auth.user_id, submissionTime = request.now, \
-                                    submissionResult = "Evaluating")
+                                    submissionResult = CurrStatus)
         session.isFromChallengesPage = 0
 
 
@@ -216,16 +217,40 @@ def addContestDetails():
 
 
 
-def getFilePath():    
-    record = db(db.ocj_contests_log.userID == auth.user_id).select(orderby=~db.ocj_contests_log.submissionTime)[0]
-    k = str(record['code'])
+def getFilePath():
+    record = db(db.ocj_contests_log.userID == auth.user_id).select(orderby=~db.ocj_contests_log.submissionTime).first()
+    questionId = record['questionNumber']
+    contestId = record['contestID']
+    recordfromques = db( (db.ocj_contests_questions.questionNumber == questionId)\
+                                        & (db.ocj_contests_questions.contestID==contestId) ).select().first()
+    testpathtemp = recordfromques['testCase1']
+    testop = recordfromques['output1']
+    k = record['code']
     filePath = os.path.join(request.folder,'uploads',k)
-    runStatus = os.system("g++ "+str(filePath))
-    if runStatus == 0 :
-        compilationStat = "Success"
+    testpath = os.path.join(request.folder,'uploads',testpathtemp)
+    outputPath=os.path.join(request.folder,'uploads',testop)
+    scriptPath = os.path.join(request.folder,'static/CodeJudge.sh')
+    listRunStatus = list(commands.getstatusoutput("bash "+str(scriptPath)+" "+ str(filePath) +" "+ str(testpath) +" "+ str(outputPath) ))
+    runStatus = listRunStatus[1]
+
+    if "CTE" in runStatus:
+        CurrStatus = "Compile Time Error"
+    elif "Segmentation" in runStatus :
+        CurrStatus = "Segmentation Fault"
+    elif "RTE" in runStatus :
+        CurrStatus = "Run Time Error"
+    elif "Wrong" in runStatus :
+        CurrStatus = "Wrong Answer"
+    elif "Accepted" in runStatus :
+        CurrStatus = "Accepted"
     else:
-        compilationStat = "Failure"
-    return locals()
+        CurrStatus = "Time Limit Exceeded"
+    #Update the Submission STatus of the submitted code
+    #0-Success 1-CTE 2-RTE 3-TLE
+    #row = db(db.ocj_contests_log.userID==auth.user_id).select(orderby=~db.ocj_contests_log.submissionTime).first()
+    #row.update_record(submissionResult=CurrStatus)
+    #eturn locals()
+    return CurrStatus
 
 
 
