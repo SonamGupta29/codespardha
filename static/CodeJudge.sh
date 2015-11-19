@@ -38,10 +38,10 @@ if [[ ! -f $3 ]]; then
 	exit 1
 fi
 
-./a.out < $2 > output 2>/dev/null
+./a.out < $2 > tempoutput 2>/dev/null
 
-diff -u output $3 
-echo ""
+diff -u tempoutput "$3"
+
 if [[ $? -eq 0 ]]; then
 	echo "Accepted"
 	exit 5
