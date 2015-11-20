@@ -1,64 +1,92 @@
 {{extend 'layout.html'}}
-<h1 id="mediumtext">
-        {{=cName}}
-</h1>
-<br>
-<table class="table">
-    <th></th>
-    <th>
-        Problem Name
-    </th>
-    <th>
-         Successful/Attempted
-    </th>
-    <th>
-        Attempt Problem
-    </th>
-    {{for row in rows:}}
-    <tr>
-        <td></td>
-        <td>
-            {{=row.questionName}}
-        </td>
-        <td >
-            {{=success}} /
-            {{=attempted}}
-        </td>
-        <td>
-        <a href="{{=URL('challenges',args=[row.contestID,row.questionNumber,row.questionName])}}">
-                    <div style="background-color: #B6B6B4;width: 30%;padding: 5px;border: 5px Black;margin: 5px; text-align:center ">
-                        Solve Problem
-                     </div>
-                </a>
-    </td>
-    </tr>
-    {{pass}}
-</table>
 
-<br>
-<br>
-<br>
+<style type="text/css">
 
-<div class="container col-lg-8" style="letter-spacing: 2px; margin-left:15%" >
-    <div class="panel panel-info" style="text-align: center"  >
-        <div class="panel-heading lead text-uppercase" style="letter-spacing: 8px;"> Contest Leaderboard</div>
-        <div class="panel-body text-info">
-            <table class="table table-striped">
-              <tr>
-                <td><b>Problem</b></td>
-            <td><b>Submission Time</b></td>
-            <td><b>User</b></td>
-            <td><b>Result</b></td>
-        </tr>
-        {{for log in logs:}}
-        <tr>
-            <td>{{=log.questionName}}</td>
-            <td>{{=log.submissionTime}}</td>
-            <td>{{=log.userID}}</td>
-            <td>{{=log.submissionResult}}</td>
-        </tr>
-        {{pass}}
-            </table>
+.post-author {font-size: 18px;}
+.post-author,
+.post-author a {
+    color: #999999;
+    font-size: 13px;
+}
+
+.redFont
+{
+    color:Red;
+}    
+
+.greenFont
+{
+    color:Green;
+}
+
+</style>
+<br>
+<div id="page-wrapper">
+    <div class="container-fluid" style="align:center;">
+        <!-- Page Heading -->
+        <div class="row">
+            <div class="col-lg-12" style="margin-top:-3%;">
+                <h1 class="page-header" style="color:#4863A0; letter-spacing:4px; margin-left:3% ">
+                  {{=cName}}
+            </h1>
+            </div>
+            <div class="col-lg-6  text-primary" style="margin-left:3%">
+            {{for row in rows:}}
+            
+                <div class="panel panel-info" style="text-align: center">
+                    <div class="panel-body text-info">
+                        <div class="h3 text-primary col-sm-6 pull-left" style="letter-spacing:2px">{{=row.questionName}}</div>
+                        <a href="{{=URL('challenges',args=[row.contestID,row.       questionNumber,        row.questionName])}}">
+                            <br>
+                                <div style="text-align:center;margin-left:8% " class="btn-info btn col-sm-4">
+                            Solve Challenge
+                        </div>
+                            </a>
+                        </div>
+                        <div class="text-info post-author">
+                            <small>Success Rate 
+                                <b>{{=successPercentage}}
+                                </small>%
+                            </b>
+                        </div>
+                    </div>
+            
+            {{pass}}
+        
+                </div>
+                <div class="container col-sm-5  " style="letter-spacing: 2px;margin-right:- 6%" >
+                    <div class="panel panel-info" style="text-align: center"  >
+                        <div class="panel-heading lead text-uppercase" style="letter-spacing: 8px;"> Contest Leaderboard</div>
+                        <div class="panel-body text-info">
+                            <table class="table table-striped">
+                                <tr>
+                                    <td>
+                                        <b>Problem</b>
+                                    </td>
+                                    <td>
+                                        <b>Submission Time</b>
+                                    </td>
+                                    <td>
+                                        <b>User</b>
+                                    </td>
+                                    <td>
+                                        <b>Result</b>
+                                    </td>
+                                </tr>
+                                {{for log in logs:}}
+                                <tr>
+                                    <td>{{=log.questionName}}</td>
+                                    <td>{{=log.submissionTime}}</td>
+                                    <td>{{=db(db.auth_user == log.userID).select(db.auth_user.handle)[0].handle}}</td>
+                                    <td>{{=log.submissionResult}}</td>
+                                </tr>
+                                {{pass}}
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+

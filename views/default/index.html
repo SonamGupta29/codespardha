@@ -1,7 +1,9 @@
 {{extend 'layout.html'}}
+
+
 <style type="text/css">
-	
-	.timeline {
+  
+  .timeline {
   list-style: none;
   padding: 20px 0 20px;
   position: relative;
@@ -211,57 +213,71 @@
     border-top: solid 1px #EEEEEE;
 }
 </style>
-
-
-
 <script type="text/javascript">
-	$('.timeline-panel').click(function() {
+  $('.timeline-panel').click(function() {
     $('.timeline-body', this).toggle(); // p00f
 });
 </script>
-
 <div id="page-wrapper">
-    <div class="container-fluid" style="margin-left:5%;align=:center">
-	    <!-- Page Heading -->	
+    <div class="container-fluid" style="margin-left:5%;align=:center;margin-top:-2%">
+        <!-- Page Heading -->
         <div class="row">
-    	    <div class="col-lg-12">
+            <div class="col-lg-12">
                 <h1 class="page-header">
-                      {{=session.userName}}  <small>Profile Overview</small>
+                      {{=session.handle}}  
+                    
+                    <small>Profile Overview</small>
                 </h1>
                 <div class="row">
                     <div class="col-lg-7 col-md-6">
-                        <div class="panel panel-primary">
+                        <div class="panel panel-primary ">
                             <div class="panel-heading">
                                 <div class="row">
                                     <div class="col-xs-6 text-left">
-                                        	<div class="h4 text-uppercase" style="letter-spacing:2px">Recent Activity</div>
+                                        <div class="h4 text-uppercase" style="letter-spacing:2px">Recent Activity</div>
                                     </div>
                                 </div>
                             </div>
                             <div class="panel-body">
-								<div class="container">
-								    <ul class="timeline">
-								    	{{for row in activity:}}
-								        <li>
-								          <div class="timeline-badge danger"><i class="glyphicon glyphicon glyphicon-time"></i></div>
-								          <div class="timeline-panel">
-								            <div class="timeline-heading">
-								              <div style="font-size:120%">{{=row.questionName}}</div>
-								              <span class="post-author">on {{=row.submissionTime}} &nbspfrom <a href="#"><b>{{=row.contestID}}</b></a></span>
-								            </div>
-								            <div class="timeline-body">
-								              <p>You attempted the problem and result was <b>{{=row.submissionResult}}</b></p>
-								            </div>
-								          </div>
-								        </li>
-								        {{pass}}
-								    </ul>
-								</div>
-							</div>
+                                <div class="container">
+                                    <ul class="timeline">
+                      {{for row in activity:}}
+                        
+                                        
+                                        <li>
+                                            <div class="timeline-badge danger">
+                                                <i class="glyphicon glyphicon glyphicon-time"></i>
+                                            </div>
+                                            <div class="timeline-panel">
+                                                <div class="timeline-heading">
+                                                    <div style="font-size:120%">{{=row.questionName}}</div>
+                                                    <span class="post-author">on {{=row.submissionTime}}&nbspfrom 
+                                                        
+                                                        <a href="#">
+                                                            <b>{{=row.contestID}}</b>
+                                                        </a>
+                                                    </span>
+                                                </div>
+                                                <div class="timeline-body">
+                                                    <p>You attempted the problem and result was 
+                                                        
+                                                        <b>{{=row.submissionResult}}</b>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </li>
+                        {{pass}}
+                    
+                                    
+                                    </ul>
+                                </div>
+                            </div>
                             <a href="showTimeline">
                                 <div class="panel-footer">
                                     <span class="pull-left">All activities</span>
-                                    <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                                    <span class="pull-right">
+                                        <i class="fa fa-arrow-circle-right"></i>
+                                    </span>
                                     <div class="clearfix"></div>
                                 </div>
                             </a>
@@ -272,7 +288,7 @@
                             <div class="panel-heading">
                                 <div class="row">
                                     <div class="col-xs-6 text-left">
-                                        	<div class="h4">Contest Rankings</div>
+                                        <div class="h4">Contest Rankings</div>
                                     </div>
                                 </div>
                             </div>
@@ -283,69 +299,87 @@
                             <a href="#">
                                 <div class="panel-footer">
                                     <span class="pull-left">View All Solved Problems</span>
-                                    <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                                    <span class="pull-right">
+                                        <i class="fa fa-arrow-circle-right"></i>
+                                    </span>
                                     <div class="clearfix"></div>
                                 </div>
                             </a>
                         </div>
                     </div>
                     <div class="col-lg-4 col-md-6">
-                        <div class="panel panel-primary	">
+                        <div class="panel panel-primary ">
                             <div class="panel-heading">
                                 <div class="row">
                                     <div class="col-xs-6 text-left">
-                                        	<div class="h4">Submission Stats</div>
+                                        <div class="h4">Submission Stats</div>
                                     </div>
                                 </div>
                             </div>
                             <div class="panel-body">
-                            <table class="table striped">
-	                            <tr>
-	                            	<td>
-	                            		Passed
-	                            	</td>
-	                            	<td>
-	                            		{{=successfulCount}}	
-	                            	</td>
-	                            </tr>
-	                            <tr>
-	                            	<td>
-	                            		Wrong Answer
-	                            	</td>
-	                            	<td>
-	                            		{{=wrongAnswerCount}}	
-	                            	</td>
-                            	</tr>
-                            	<tr>
-	                            	<td>
-	                            		Compile Error
-	                            	</td>
-	                            	<td>
-	                            		{{=compileErrorCount}}	
-	                            	</td>
-                            	</tr>
-                            	<tr>
-	                            	<td>
-										Time Limit Exceeded
-	                            	</td>
-	                            	<td>
-	                            		{{=TLECount}}	
-	                            	</td>
-                            	</tr>                            	
-                            	<tr>
-	                            	<td>
-										Total Submissions
-	                            	</td>
-	                            	<td>
-	                            		{{=submissionCount}}	
-	                            	</td>
-                            	</tr>         
-                            	</table>
+                                <table class="table striped">
+                                    <tr>
+                                        <td>
+                                  Passed
+                                </td>
+                                        <td>
+                                  {{=successfulCount}}  
+                                </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                  Wrong Answer
+                                </td>
+                                        <td>
+                                  {{=wrongAnswerCount}} 
+                                </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                  Compile Error
+                                </td>
+                                        <td>
+                                  {{=compileErrorCount}}  
+                                </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                Time Limit Exceeded
+                                </td>
+                                        <td>
+                                  {{=TLECount}} 
+                                </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                Segmentation Fault
+                                </td>
+                                        <td>
+                                  {{=segmentationFaultCount}} 
+                                </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                Run Time Error
+                                </td>
+                                        <td>
+                                  {{=runTimeErrorCount}} 
+                                </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                    Total Submissions
+                                </td>
+                                        <td>
+                                  {{=submissionCount}}  
+                                </td>
+                                    </tr>
+                                </table>
                             </div>
-                            
                         </div>
-                        </div>
-                        </div>	
-                        </div>
-                        </div>
-                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+  <br>

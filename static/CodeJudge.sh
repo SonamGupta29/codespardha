@@ -17,6 +17,7 @@ if [[ $? -ne 0 ]]; then
 	exit 1
 fi
 
+cat $1 $1 $3
 { timelimit -t3 ./a.out < $2; } 1>/dev/null 2>&1
 
 if [[ $? -ne 0 ]]; then
@@ -40,6 +41,7 @@ fi
 
 ./a.out < $2 > tempoutput 2>/dev/null
 
+
 diff -u tempoutput "$3"
 
 if [[ $? -eq 0 ]]; then
@@ -47,6 +49,5 @@ if [[ $? -eq 0 ]]; then
 	exit 5
 
 else echo "Wrong Answer"
-	echo $?
 	exit 4
 fi

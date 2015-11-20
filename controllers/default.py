@@ -7,17 +7,27 @@ def index():
     message='Code Spardha'
     session.userName = db(db.auth_user == auth.user_id).select(db.auth_user.first_name)[0].first_name
 
+    session.handle = db(db.auth_user == auth.user_id).select(db.auth_user.handle)[0].handle
+
     activity = db(db.ocj_contests_log.userID == auth.user_id).select(orderby=~db.ocj_contests_log.submissionTime)[:3]
 
     submissionCount = len(db(db.ocj_contests_log.userID == auth.user_id).select())
 
-    successfulCount = len(db((db.ocj_contests_log.userID == auth.user_id) & (db.ocj_contests_log.submissionResult=="Passed")).select())
+    successfulCount = len(db((db.ocj_contests_log.userID == auth.user_id) & (db.ocj_contests_log.submissionResult=="Accepted")).select())
 
     wrongAnswerCount = len(db((db.ocj_contests_log.userID == auth.user_id) & (db.ocj_contests_log.submissionResult=="Wrong Answer")).select())
-    compileErrorCount = len(db((db.ocj_contests_log.userID == auth.user_id) & (db.ocj_contests_log.submissionResult=="Compile Error")).select())
+
+    compileErrorCount = len(db((db.ocj_contests_log.userID == auth.user_id) & (db.ocj_contests_log.submissionResult=="Compile Time Error")).select())
+
     TLECount = len(db((db.ocj_contests_log.userID == auth.user_id) & (db.ocj_contests_log.submissionResult=="Time Limit Exceeded")).select())
+
+    segmentationFaultCount = len(db((db.ocj_contests_log.userID == auth.user_id) & (db.ocj_contests_log.submissionResult=="Segmentation Fault")).select())
+
+    runTimeErrorCount = len(db((db.ocj_contests_log.userID == auth.user_id) & (db.ocj_contests_log.submissionResult=="Run Time Error")).select())
+
     #form = SQLFORM(db.ocj_user_login).process()
     return locals()
+
 
 @auth.requires_login()
 def showTimeline():
@@ -55,9 +65,13 @@ def contestpage():
     # This will return the all the submission of the current contest
     logs = db(db.ocj_contests_log.contestID == int(request.args[0])).select(orderby=~db.ocj_contests_log.submissionTime)
 
-    success = 10
-    attempted = 1000
+    success = len(db((db.ocj_contests_log.contestID == int(request.args[0])) &\
+                 (db.ocj_contests_log.submissionResult == "Accepted")).select())
 
+    attempted = len(db((db.ocj_contests_log.contestID == int(request.args[0]))).select())
+
+    successPercentage = (success*100) / attempted;
+    
     return locals()
 
 
@@ -231,6 +245,7 @@ def getFilePath():
     outputPath=os.path.join(request.folder,'uploads',testop)
     scriptPath = os.path.join(request.folder,'static/CodeJudge.sh')
     listRunStatus = list(commands.getstatusoutput("bash "+str(scriptPath)+" "+ str(filePath) +" "+ str(testpath) +" "+ str(outputPath) ))
+    os.system("bash "+str(scriptPath)+" "+ str(filePath) +" "+ str(testpath) +" "+ str(outputPath) )
     runStatus = listRunStatus[1]
 
     if "CTE" in runStatus:

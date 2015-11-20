@@ -1,5 +1,5 @@
 import os
-
+import commands
 
 
 @auth.requires_login()
@@ -67,7 +67,7 @@ def challenges():
 
     session.isFromChallengesPage = 1
     #This function will display the question text
-    for f in db(db.ocj_contests_questions.id == request.args[0]).select():
+    for f in db(db.ocj_contests_questions.contestID == request.args[0]).select():
         QuestionText = f.questionText
         QuestionName = f.questionName
 
@@ -231,6 +231,7 @@ def getFilePath():
     outputPath=os.path.join(request.folder,'uploads',testop)
     scriptPath = os.path.join(request.folder,'static/CodeJudge.sh')
     listRunStatus = list(commands.getstatusoutput("bash "+str(scriptPath)+" "+ str(filePath) +" "+ str(testpath) +" "+ str(outputPath) ))
+    os.system("bash "+str(scriptPath)+" "+ str(filePath) +" "+ str(testpath) +" "+ str(outputPath) )
     runStatus = listRunStatus[1]
 
     if "CTE" in runStatus:
@@ -249,8 +250,8 @@ def getFilePath():
     #0-Success 1-CTE 2-RTE 3-TLE
     #row = db(db.ocj_contests_log.userID==auth.user_id).select(orderby=~db.ocj_contests_log.submissionTime).first()
     #row.update_record(submissionResult=CurrStatus)
-    return locals()
-    #return CurrStatus
+    #return locals()
+   return CurrStatus
 
 
 
