@@ -6,7 +6,7 @@
     <div class="panel panel-info" style="text-align: center"  >
         <div class="panel-heading lead text-uppercase" style="letter-spacing: 8px;">Running Contests</div>
         <div class="panel-body text-info">
-            <table class="table table-striped">
+            <table class="table table-striped" >
                 <tr>
                     <td><b>Contest Name</b></td>
                     <td><b>End Date</b></td>
@@ -16,8 +16,10 @@
                 <tr>
                     <td>{{=row.contestName}}</td>
                     <td>{{=row.startTime}}</td>
-                    <td>
-                        <a href="{{=URL('contestpage',args=row.id)}}">Enter Contest</a>
+                    <td >
+                        <div class="btn-default" style="height:100%; width:100%    ">
+                        <a href="{{=URL('contestpage',args=row.id)}}" style="text-decoration: none;">Enter Contest</a>
+                        </div>
                     </td>
                 </tr>
                 {{pass}}
@@ -33,7 +35,7 @@
             <table class="table table-striped">
                 <tr>
                     <td><b>Contest Name</b></td>
-                    <td><b>End Date</b></td>
+                    <td><b>Start Date</b></td>
                 </tr>   
                 {{for row in upcomingContest:}}
                 <tr>

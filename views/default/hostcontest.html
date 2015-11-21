@@ -1,36 +1,83 @@
 {{extend 'layout.html'}}
 
-<br><br><br><br>
-<div class="container col-lg-7" style="letter-spacing: 2px;margin-left:20%" >
-  <div class="panel panel-info" style="text-align: center">
-    <div class="panel-heading lead text-uppercase" style="letter-spacing: 8px;"><b>Create Contest</b></div>
-    <div class="panel-body text-info">
-	    <form method="POST" action="addcontest">
-			<div>
-				<table class="table table-striped">
-					<tr>
-						<td>Give Contest a Name</td>
-						<td><input class="form-control string" id="ocj_contests_ContestName" name="contestName" type="text" value="" autocomplete="off" required  pattern=".{6,}" title="6 characters minimum"></td>
-						<td></td>
-					</tr>
-					<tr>
-						<td>Start Time</td>
-						<td><input class="form-control datetime" id="ocj_contests_StartTime" name="startTime" type="text" value="" autocomplete="off" required></td>
-						<td></td>
-					</tr>
-					<tr>
-						<td>End Time </td>
-						<td><input class="form-control datetime" id="ocj_contests_EndTime" name="e										ndTime"type="text" value="" required></td>
-						<td></td>
-					</tr>
-				</table>
-				<button class="border-style: solid;  border-radius:0px">Create the Contest</button>
-			</div>
-		</form>
+
+<div id="page-wrapper">
+    <div class="container-fluid" style="align:center; margin-top:-2%">
+        <!-- Page Heading -->
+        <div class="row">
+            <div class="col-lg-12"	>
+                <h1 class="page-header" style="color:#4863A0; letter-spacing:4px; margin-left:3% ">
+                  {{=session.handle}}   <small><b>dashboard</b></small>
+            </h1>
+            </div>
+            <div class="col-lg-12"	style="margin-left:5%">
+            <div class="col-lg-6 text-primary panel-info panel" style="letter-spacing:2px">
+	            <div class="text-primary"><b>Guidelines for hosting the contest:</b></div>
+	            <br>
+	            1. Contest name should be at least 6 characters long and should not contain any special characters
+            </div>
+          	
+            </div>
+			<div class="container col-lg-6 pull-left" style="letter-spacing: 2px;margin-left:5%" >
+				<div class="panel panel-info" style="text-align: center">
+    				<div class="panel-heading lead text-uppercase" style="letter-spacing: 8px;"><b>Create Contest</b></div>
+	    				<div class="panel-body text-info">
+		    				<form method="POST" action="addcontest">
+								<div>
+									<table class="table table-striped">
+										<tr>
+											<td>Give Contest a Name</td>
+											<td><input class="form-control string" id="ocj_contests_ContestName" name="contestName" type="text" value="" autocomplete="off" required  pattern=".{6,}" title="6 characters minimum"></td>
+										<td></td>
+										</tr>
+						<tr>
+							<td>Start Time</td>
+							<td><input class="form-control datetime" id="ocj_contests_StartTime" name="startTime" type="text" value="" autocomplete="off" required></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td>End Time </td>
+							<td><input class="form-control datetime" id="ocj_contests_EndTime" 
+							name="endTime"type="text" value="" required></td>
+							<td></td>
+						</tr>
+					</table>
+					<button class="border-style: solid;  border-radius:0px">Create the Contest</button>
+				</div>
+			</form>
+		</div>
+	</div>
+	</div>
+	<div class="container col-md-5 pull-right" style="letter-spacing: 2px;" >
+	    <div class="panel panel-info" style="text-align: center"  >
+	        <div class="panel-heading lead text-uppercase" style="letter-spacing: 3px;">My Hosted Contests</div>
+	        <div class="panel-body text-info">
+	            <table class="table table-striped">
+	                <tr>
+	                    <td><b>Contest Name</b></td>
+	                    <td><b>Start Date</b></td>
+	                    <td><b>End Date</b></td>
+	                </tr>  
+	                {{for row in logs:}}
+                	<tr>
+	                    <td>{{=row.contestName}}</td>
+	                    <td>{{=row.startTime}}</td>
+						<td>{{=row.endTime}}</td>
+	                </tr>
+                	{{pass}}
+	            </table>
+	        </div>
+	        <a href="manage">
+	        	<div class="panel-footer">
+	            	<span class="pull-left">Manage Contests</span>
+	                <span class="pull-right">
+	                	<i class="fa fa-arrow-circle-right"></i>
+	                </span>
+	                <div class="clearfix"></div>
+	            </div>
+	        </a>
+	    </div>
 	</div>
 </div>
-
-
-
-
-
+</div>
+</div>

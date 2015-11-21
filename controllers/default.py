@@ -2,12 +2,25 @@ import os
 import commands
 
 
-@auth.requires_login()
+
 def index():
-    message='Code Spardha'
+    message='This is the landing form after login not the dashboard'
     session.userName = db(db.auth_user == auth.user_id).select(db.auth_user.first_name)[0].first_name
 
     session.handle = db(db.auth_user == auth.user_id).select(db.auth_user.handle)[0].handle
+    #form = SQLFORM(db.ocj_user_login).process()
+    return locals()
+
+
+@auth.requires_login()
+def showTimeline():
+    activity = db(db.ocj_contests_log.userID == auth.user_id).select(orderby=~db.ocj_contests_log.submissionTime)
+    return locals()
+
+
+@auth.requires_login()
+def home():
+    message='Code Spardha'
 
     activity = db(db.ocj_contests_log.userID == auth.user_id).select(orderby=~db.ocj_contests_log.submissionTime)[:3]
 
@@ -25,19 +38,8 @@ def index():
 
     runTimeErrorCount = len(db((db.ocj_contests_log.userID == auth.user_id) & (db.ocj_contests_log.submissionResult=="Run Time Error")).select())
 
-    #form = SQLFORM(db.ocj_user_login).process()
-    return locals()
 
 
-@auth.requires_login()
-def showTimeline():
-    activity = db(db.ocj_contests_log.userID == auth.user_id).select(orderby=~db.ocj_contests_log.submissionTime)
-    return locals()
-
-
-
-def home():
-    message='Code Spardha'
     #form = SQLFORM(db.ocj_user_login).process()
     return locals()
 
@@ -70,7 +72,10 @@ def contestpage():
 
     attempted = len(db((db.ocj_contests_log.contestID == int(request.args[0]))).select())
 
-    successPercentage = (success*100) / attempted;
+    if attempted == 0 :
+        successPercentage = 0
+    else :
+        successPercentage = (success*100) / attempted
     
     return locals()
 
@@ -124,7 +129,8 @@ def challenges():
     contestID = request.args[0]
     questionNumber = request.args[1]
     if form.accepted:
-         redirect(URL('processSubmission'))
+        redirect(URL('processSubmission'))
+
     return locals()
 
 
@@ -145,6 +151,11 @@ def processSubmission():
     And this will only happen if the page is came from last page not refreshed, 
     coz page refresh will insert duplicate page
     """
+    id = db.ocj_contests_log.insert(questionNumber = qNumber, contestID = cID, \
+                                    code = cFile, questionName = qName, \
+                                    userID = auth.user_id, submissionTime = request.now, \
+                                    submissionResult = "Evaluating")
+
     CurrStatus = getFilePath()
     if session.isFromChallengesPage == 1:
         id = db.ocj_contests_log.insert(questionNumber = qNumber, contestID = cID, \
@@ -179,7 +190,15 @@ def manage():
 def hostcontest():
     session.wasOnAddContestForm = 1
     #Set the current logged in user id as the hosted by user id
-    return dict(form=SQLFORM(db.ocj_contests).process())
+    #return dict(form=SQLFORM(db.ocj_contests).process())
+
+    logs = db(db.ocj_contests.hostedBy == int(auth.user_id)).select(orderby=~db.ocj_contests.startTime)
+
+
+
+
+
+    return locals()
 
 
 @auth.requires_login()
@@ -211,8 +230,7 @@ def addContestDetails():
 
     contestID = request.vars['contestID']
     questionNumber = request.vars['questionNumber']
-    questionName = request.vars['questionName']
-    contestName = request.vars['contestpage']   
+    questionName = request.vars['questionName'] 
     questionText_1 = request.vars['questionText_1']
     noOfTestCases_1 = request.vars['noOfTestCases_1']
     testCase_1_1 = request.vars['testCase_1_1']

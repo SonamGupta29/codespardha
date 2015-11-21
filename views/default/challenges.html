@@ -57,15 +57,7 @@
             <td>{{=log.questionName}}</td>
             <td>{{=log.submissionTime}}</td>
             <td>{{=db(db.auth_user == log.userID).select(db.auth_user.handle)[0].handle}}</td>
-            <td>
-                <div id="changeColor" style="color:Red">
-                    {{=log.submissionResult}}
-                </div>
-                <script type="text/javascript">
-                    if("{{=log.submissionResult}}" == "Accepted")
-                        document.getElementById('changeColor').style.color = "Green";
-                </script>
-            </td>
+            <td>{{=log.submissionResult}}</td>
         </tr>
         {{pass}}
             </table>

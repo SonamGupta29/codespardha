@@ -1,0 +1,762 @@
+(dp1
+S'output'
+p2
+S"<type 'exceptions.ValueError'> invalid literal for long() with base 10: '|171|adsfasdfasdf|'"
+p3
+sS'layer'
+p4
+S'/home/ganesh/Documents/IIITH/M-Tech/1-Sem/SCE/Projects/web2py/applications/OCJ/controllers/default.py'
+p5
+sS'code'
+p6
+S'import os\nimport commands\n\n\n@auth.requires_login()\ndef index():\n    message=\'Code Spardha\'\n    session.userName = db(db.auth_user == auth.user_id).select(db.auth_user.first_name)[0].first_name\n\n    session.handle = db(db.auth_user == auth.user_id).select(db.auth_user.handle)[0].handle\n\n    activity = db(db.ocj_contests_log.userID == auth.user_id).select(orderby=~db.ocj_contests_log.submissionTime)[:3]\n\n    submissionCount = len(db(db.ocj_contests_log.userID == auth.user_id).select())\n\n    successfulCount = len(db((db.ocj_contests_log.userID == auth.user_id) & (db.ocj_contests_log.submissionResult=="Accepted")).select())\n\n    wrongAnswerCount = len(db((db.ocj_contests_log.userID == auth.user_id) & (db.ocj_contests_log.submissionResult=="Wrong Answer")).select())\n\n    compileErrorCount = len(db((db.ocj_contests_log.userID == auth.user_id) & (db.ocj_contests_log.submissionResult=="Compile Time Error")).select())\n\n    TLECount = len(db((db.ocj_contests_log.userID == auth.user_id) & (db.ocj_contests_log.submissionResult=="Time Limit Exceeded")).select())\n\n    segmentationFaultCount = len(db((db.ocj_contests_log.userID == auth.user_id) & (db.ocj_contests_log.submissionResult=="Segmentation Fault")).select())\n\n    runTimeErrorCount = len(db((db.ocj_contests_log.userID == auth.user_id) & (db.ocj_contests_log.submissionResult=="Run Time Error")).select())\n\n    #form = SQLFORM(db.ocj_user_login).process()\n    return locals()\n\n\n@auth.requires_login()\ndef showTimeline():\n    activity = db(db.ocj_contests_log.userID == auth.user_id).select(orderby=~db.ocj_contests_log.submissionTime)\n    return locals()\n\n\n\ndef home():\n    message=\'Code Spardha\'\n    #form = SQLFORM(db.ocj_user_login).process()\n    return locals()\n\ndef contests():\n    # This page will shoes the current running contests\n    runningContests = db((db.ocj_contests.startTime < request.now)& \\\n                         (db.ocj_contests.endTime > request.now)).select()\n\n    upcomingContest = db(db.ocj_contests.startTime > request.now).select()\n\n    return locals()\n\n\n@auth.requires_login()\ndef contestpage():\n    #This page will show the running contest problems\n\n    #Get the contest name\n    for f in db(db.ocj_contests.id == int(request.args[0])).select():\n        cName = f.contestName\n\n    # Get the current problems and show it to user\n    rows = db(db.ocj_contests_questions.contestID == int(request.args[0])).select()\n\n    # This will return the all the submission of the current contest\n    logs = db(db.ocj_contests_log.contestID == int(request.args[0])).select(orderby=~db.ocj_contests_log.submissionTime)\n\n    success = len(db((db.ocj_contests_log.contestID == int(request.args[0])) &\\\n                 (db.ocj_contests_log.submissionResult == "Accepted")).select())\n\n    attempted = len(db((db.ocj_contests_log.contestID == int(request.args[0]))).select())\n\n    if attempted == 0 :\n        successPercentage = 0\n    else :\n        successPercentage = (success*100) / attempted\n    \n    return locals()\n\n\n\n@auth.requires_login()\ndef challenges():\n\n    session.isFromChallengesPage = 1\n    #This function will display the question text\n    for f in db(db.ocj_contests_questions.contestID == request.args[0]).select():\n        QuestionText = f.questionText\n        QuestionName = f.questionName\n\n    """ #Set the current time stamp\n    db.ocj_contests_log.submissionTime.default = request.now\n    db.ocj_contests_log.submissionTime.writable = False\n    db.ocj_contests_log.submissionTime.readable = False\n\n    #Set the current logged in user\n    db.ocj_contests_log.userID.default = auth.user_id\n    db.ocj_contests_log.userID.writable = False\n    db.ocj_contests_log.userID.readable = False\n\n    #Set the current contest id\n    db.ocj_contests_log.contestID.default = request.args[0]\n    db.ocj_contests_log.contestID.writable = False\n    db.ocj_contests_log.contestID.readable = False\n\n    #Set the current question no\n    db.ocj_contests_log.questionNumber.default = request.args[1]\n    db.ocj_contests_log.questionNumber.writable = False\n    db.ocj_contests_log.questionNumber.readable = False\n\n    #Set the current Submission result as evaluating\n    db.ocj_contests_log.submissionResult.default = \'Evaluating\'\n    db.ocj_contests_log.submissionResult.writable = False\n    db.ocj_contests_log.submissionResult.readable = False\n\n    #Set the current Submission result as evaluating\n    db.ocj_contests_log.questionName.default = request.args[2]\n    db.ocj_contests_log.questionName.writable = False\n    db.ocj_contests_log.questionName.readable = False\n\n    # This will show the question submission log\n    form = SQLFORM(db.ocj_contests_log).process()"""\n    logs = db((db.ocj_contests_log.contestID == int(request.args[0])) & \\\n                (db.ocj_contests_log.questionNumber == int(request.args[1]))).\\\n                select(orderby=~db.ocj_contests_log.submissionTime)\n\n    contestID = request.args[0]\n    questionNumber = request.args[1]\n\n    redirect(URL(\'processSubmission\'))\n    return locals()\n\n\n\n#This function will be used to process the submission from here we can compile and run function\n@auth.requires_login()\ndef processSubmission():\n\n    qNumber = request.vars[\'questionNumber\']\n    cID = request.vars[\'contestID\']\n    cFile = request.vars[\'submissionFile\']\n    qName = request.vars[\'questionName\']\n\n    """\n    Insert record in the log table and make the submission status as evaluating\n    """\n    """ \n    And this will only happen if the page is came from last page not refreshed, \n    coz page refresh will insert duplicate page\n    """\n    id = db.ocj_contests_log.insert(questionNumber = qNumber, contestID = cID, \\\n                                    code = cFile, questionName = qName, \\\n                                    userID = auth.user_id, submissionTime = request.now, \\\n                                    submissionResult = "Evaluating")\n\n    CurrStatus = getFilePath()\n    if session.isFromChallengesPage == 1:\n        id = db.ocj_contests_log.insert(questionNumber = qNumber, contestID = cID, \\\n                                    code = cFile, questionName = qName, \\\n                                    userID = auth.user_id, submissionTime = request.now, \\\n                                    submissionResult = CurrStatus)\n        session.isFromChallengesPage = 0\n\n\n\n    rows = db((db.ocj_contests_log.contestID == cID) & \\\n                (db.ocj_contests_log.questionNumber == qNumber) &\n                (db.ocj_contests_log.userID == auth.user_id)).\\\n                select(orderby=~db.ocj_contests_log.submissionTime)\n\n\n\n    return locals()\n\n\n\n@auth.requires_login()\n@auth.requires_membership(\'host_admin\')\ndef manage():\n    grid = SQLFORM.grid(db.ocj_contests)\n    return locals()\n\n\n@auth.requires_login()\n@auth.requires_membership(\'host_admin\')\n#This view will be used for hosting the contest\ndef hostcontest():\n    session.wasOnAddContestForm = 1\n    #Set the current logged in user id as the hosted by user id\n    #return dict(form=SQLFORM(db.ocj_contests).process())\n\n    logs = db(db.ocj_contests.hostedBy == int(auth.user_id)).select(orderby=~db.ocj_contests.startTime)\n\n\n\n\n\n    return locals()\n\n\n@auth.requires_login()\n@auth.requires_membership(\'host_admin\')\n#This will be intermediate function for hosting the contest\ndef addcontest():\n    \n    """\n    This session variable will check if any user directly landed on this page or not\n    if he didnt come from last page then redirect him on the last page and ask to name the\n    contest first\n    """\n    if session.wasOnAddContestForm != 1:\n       redirect(URL(\'hostcontest\'))\n\n    session.wasOnAddContestForm = 0     \n    """\n    Get the varilable from the last page and inser it into the database and get the id in return\n    """\n    CName = request.vars[\'contestName\']\n    ETime = request.vars[\'endTime\']\n    STime = request.vars[\'startTime\']\n    id = db.ocj_contests.insert(contestName=CName, endTime=ETime, startTime=STime, hostedBy=auth.user_id)\n\n    return locals()\n\n\ndef addContestDetails():\n\n    contestID = request.vars[\'contestID\']\n    questionNumber = request.vars[\'questionNumber\']\n    questionName = request.vars[\'questionName\']\n    contestName = request.vars[\'contestName\']   \n    questionText_1 = request.vars[\'questionText_1\']\n    noOfTestCases_1 = request.vars[\'noOfTestCases_1\']\n    testCase_1_1 = request.vars[\'testCase_1_1\']\n    testCaseAns_1_1 = request.vars[\'testCaseAns_1_1\']\n\n    id = db.ocj_contests_questions.insert(  contestID = contestID,   \\\n                                            questionNumber = questionNumber, \\\n                                            questionName = questionName, \\\n                                            questionText = questionText_1, \\\n                                            noOfTestCases = noOfTestCases_1, \\\n                                            testCase1 = testCase_1_1, \\\n                                            output1 = testCaseAns_1_1 )\n\n    return locals()\n\n\n\n\ndef getFilePath():\n    record = db(db.ocj_contests_log.userID == auth.user_id).select(orderby=~db.ocj_contests_log.submissionTime).first()\n    questionId = record[\'questionNumber\']\n    contestId = record[\'contestID\']\n    recordfromques = db( (db.ocj_contests_questions.questionNumber == questionId)\\\n                                        & (db.ocj_contests_questions.contestID==contestId) ).select().first()\n    testpathtemp = recordfromques[\'testCase1\']\n    testop = recordfromques[\'output1\']\n    k = record[\'code\']\n    filePath = os.path.join(request.folder,\'uploads\',k)\n    testpath = os.path.join(request.folder,\'uploads\',testpathtemp)\n    outputPath=os.path.join(request.folder,\'uploads\',testop)\n    scriptPath = os.path.join(request.folder,\'static/CodeJudge.sh\')\n    listRunStatus = list(commands.getstatusoutput("bash "+str(scriptPath)+" "+ str(filePath) +" "+ str(testpath) +" "+ str(outputPath) ))\n    os.system("bash "+str(scriptPath)+" "+ str(filePath) +" "+ str(testpath) +" "+ str(outputPath) )\n    runStatus = listRunStatus[1]\n\n    if "CTE" in runStatus:\n        CurrStatus = "Compile Time Error"\n    elif "Segmentation" in runStatus :\n        CurrStatus = "Segmentation Fault"\n    elif "RTE" in runStatus :\n        CurrStatus = "Run Time Error"\n    elif "Wrong" in runStatus :\n        CurrStatus = "Wrong Answer"\n    elif "Accepted" in runStatus :\n        CurrStatus = "Accepted"\n    else:\n        CurrStatus = "Time Limit Exceeded"\n    #Update the Submission STatus of the submitted code\n    #0-Success 1-CTE 2-RTE 3-TLE\n    #row = db(db.ocj_contests_log.userID==auth.user_id).select(orderby=~db.ocj_contests_log.submissionTime).first()\n    #row.update_record(submissionResult=CurrStatus)\n    #return locals()\n    return CurrStatus\n\n\n\n\n\n\ndef user():\n    """\n    exposes:\n    http://..../[app]/default/user/login\n    http://..../[app]/default/user/logout\n    http://..../[app]/default/user/register\n    http://..../[app]/default/user/profile\n    http://..../[app]/default/user/retrieve_password\n    http://..../[app]/default/user/change_password\n    http://..../[app]/default/user/manage_users (requires membership in\n    http://..../[app]/default/user/bulk_register\n    use @auth.requires_login()\n        @auth.requires_membership(\'group name\')\n        @auth.requires_permission(\'read\',\'table name\',record_id)\n    to decorate functions that need access control\n    """\n    return dict(form=auth())\n\n\n@cache.action()\ndef download():\n    """\n    allows downloading of uploaded files\n    http://..../[app]/default/download/[filename]\n    """\n    return response.download(request, db)\n\n\ndef call():\n    """\n    exposes services. for example:\n    http://..../[app]/default/call/jsonrpc\n    decorate with @services.jsonrpc the functions to expose\n    supports xml, json, xmlrpc, jsonrpc, amfrpc, rss, csv\n    """\n    return service()\n\nresponse._vars=response._caller(addContestDetails)\n'
+p7
+sS'snapshot'
+p8
+(dp9
+S'exception'
+p10
+(dp11
+S'__hash__'
+p12
+S"<method-wrapper '__hash__' of exceptions.ValueError object>"
+p13
+sS'__setattr__'
+p14
+S"<method-wrapper '__setattr__' of exceptions.ValueError object>"
+p15
+sS'__reduce_ex__'
+p16
+S'<built-in method __reduce_ex__ of exceptions.ValueError object>'
+p17
+sS'__getslice__'
+p18
+S"<method-wrapper '__getslice__' of exceptions.ValueError object>"
+p19
+sS'__getitem__'
+p20
+S"<method-wrapper '__getitem__' of exceptions.ValueError object>"
+p21
+sS'__setstate__'
+p22
+S'<built-in method __setstate__ of exceptions.ValueError object>'
+p23
+sS'args'
+p24
+S'("invalid literal for long() with base 10: \'|171|adsfasdfasdf|\'",)'
+p25
+sS'__reduce__'
+p26
+S'<built-in method __reduce__ of exceptions.ValueError object>'
+p27
+sS'__str__'
+p28
+S"<method-wrapper '__str__' of exceptions.ValueError object>"
+p29
+sS'__format__'
+p30
+S'<built-in method __format__ of exceptions.ValueError object>'
+p31
+sS'__getattribute__'
+p32
+S"<method-wrapper '__getattribute__' of exceptions.ValueError object>"
+p33
+sS'__class__'
+p34
+S"<type 'exceptions.ValueError'>"
+p35
+sS'__unicode__'
+p36
+S'<built-in method __unicode__ of exceptions.ValueError object>'
+p37
+sS'__delattr__'
+p38
+S"<method-wrapper '__delattr__' of exceptions.ValueError object>"
+p39
+sS'__subclasshook__'
+p40
+S'<built-in method __subclasshook__ of type object>'
+p41
+sS'__repr__'
+p42
+S"<method-wrapper '__repr__' of exceptions.ValueError object>"
+p43
+sS'__dict__'
+p44
+S'{}'
+p45
+sS'__sizeof__'
+p46
+S'<built-in method __sizeof__ of exceptions.ValueError object>'
+p47
+sS'__doc__'
+p48
+S"'Inappropriate argument value (of correct type).'"
+p49
+sS'__init__'
+p50
+S"<method-wrapper '__init__' of exceptions.ValueError object>"
+p51
+sS'__new__'
+p52
+S'<built-in method __new__ of type object>'
+p53
+ssS'evalue'
+p54
+S"invalid literal for long() with base 10: '|171|adsfasdfasdf|'"
+p55
+sS'request'
+p56
+cgluon.html
+XML_unpickle
+p57
+(S's\rk\x00\x00<div><table><tr><td style="font-weight:bold;vertical-align:top;">ajax</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">application</td><td style="vertical-align:top;">:</td><td><div>OCJ</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">args</td><td style="vertical-align:top;">:</td><td><div><table></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">cid</td><td style="vertical-align:top;">:</td><td><div>None</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">client</td><td style="vertical-align:top;">:</td><td><div>127.0.0.1</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">controller</td><td style="vertical-align:top;">:</td><td><div>default</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">cookies</td><td style="vertical-align:top;">:</td><td><div><table><tr><td style="font-weight:bold;vertical-align:top;">session_id_admin</td><td style="vertical-align:top;">:</td><td><div>127.0.0.1-3fcee496-ef33-4cc2-9126-d7be8f615cfe<table><tr><td style="font-weight:bold;vertical-align:top;">comment</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">domain</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">expires</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">httponly</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">max-age</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">path</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">secure</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">version</td><td style="vertical-align:top;">:</td><td><div></div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_id_code_gb</td><td style="vertical-align:top;">:</td><td><div>127.0.0.1-b198294c-22ea-451d-b7b8-374e0776d440<table><tr><td style="font-weight:bold;vertical-align:top;">comment</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">domain</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">expires</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">httponly</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">max-age</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">path</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">secure</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">version</td><td style="vertical-align:top;">:</td><td><div></div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_id_ocj</td><td style="vertical-align:top;">:</td><td><div>127.0.0.1-788ff837-a4ce-43af-98fd-a016b20cf5ec<table><tr><td style="font-weight:bold;vertical-align:top;">comment</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">domain</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">expires</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">httponly</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">max-age</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">path</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">secure</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">version</td><td style="vertical-align:top;">:</td><td><div></div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_id_welcome</td><td style="vertical-align:top;">:</td><td><div>127.0.0.1-8ef9e736-438d-43bd-9c26-c899cb2edd57<table><tr><td style="font-weight:bold;vertical-align:top;">comment</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">domain</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">expires</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">httponly</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">max-age</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">path</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">secure</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">version</td><td style="vertical-align:top;">:</td><td><div></div></td></tr></table></div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">env</td><td style="vertical-align:top;">:</td><td><div><table><tr><td style="font-weight:bold;vertical-align:top;">CONTENT_LENGTH</td><td style="vertical-align:top;">:</td><td><div>1114</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">CONTENT_TYPE</td><td style="vertical-align:top;">:</td><td><div>multipart/form-data; boundary=----WebKitFormBoundaryZsVRKzu64f8AI5XN</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">HTTP_ACCEPT</td><td style="vertical-align:top;">:</td><td><div>text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">HTTP_ACCEPT_ENCODING</td><td style="vertical-align:top;">:</td><td><div>gzip, deflate</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">HTTP_ACCEPT_LANGUAGE</td><td style="vertical-align:top;">:</td><td><div>en-US,en;q=0.8,hi;q=0.6</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">HTTP_CACHE_CONTROL</td><td style="vertical-align:top;">:</td><td><div>max-age=0</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">HTTP_CONNECTION</td><td style="vertical-align:top;">:</td><td><div>keep-alive</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">HTTP_CONTENT_LENGTH</td><td style="vertical-align:top;">:</td><td><div>1114</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">HTTP_CONTENT_TYPE</td><td style="vertical-align:top;">:</td><td><div>multipart/form-data; boundary=----WebKitFormBoundaryZsVRKzu64f8AI5XN</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">HTTP_COOKIE</td><td style="vertical-align:top;">:</td><td><div>session_id_code_gb=127.0.0.1-b198294c-22ea-451d-b7b8-374e0776d440; session_id_welcome=127.0.0.1-8ef9e736-438d-43bd-9c26-c899cb2edd57; session_id_admin=127.0.0.1-3fcee496-ef33-4cc2-9126-d7be8f615cfe; session_id_ocj=127.0.0.1-788ff837-a4ce-43af-98fd-a016b20cf5ec</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">HTTP_HOST</td><td style="vertical-align:top;">:</td><td><div>127.0.0.1:8000</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">HTTP_ORIGIN</td><td style="vertical-align:top;">:</td><td><div>http://127.0.0.1:8000</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">HTTP_REFERER</td><td style="vertical-align:top;">:</td><td><div>http://127.0.0.1:8000/OCJ/default/addcontest</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">HTTP_UPGRADE_INSECURE_REQUESTS</td><td style="vertical-align:top;">:</td><td><div>1</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">HTTP_USER_AGENT</td><td style="vertical-align:top;">:</td><td><div>Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.86 Safari/537.36</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">PATH_INFO</td><td style="vertical-align:top;">:</td><td><div>/OCJ/default/addContestDetails</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">QUERY_STRING</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">REMOTE_ADDR</td><td style="vertical-align:top;">:</td><td><div>127.0.0.1</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">REMOTE_PORT</td><td style="vertical-align:top;">:</td><td><div>57132</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">REQUEST_METHOD</td><td style="vertical-align:top;">:</td><td><div>POST</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">SCRIPT_NAME</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">SERVER_NAME</td><td style="vertical-align:top;">:</td><td><div>GANESH-PC</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">SERVER_PORT</td><td style="vertical-align:top;">:</td><td><div>8000</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">SERVER_PROTOCOL</td><td style="vertical-align:top;">:</td><td><div>HTTP/1.1</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">SERVER_SOFTWARE</td><td style="vertical-align:top;">:</td><td><div>Rocket 1.2.6</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">app_folders</td><td style="vertical-align:top;">:</td><td><div>set([&#x27;/home/ganesh/Documents/IIITH/M-Tech/1-Sem/SCE/Projects/web2py/applications/welcome/&#x27;, &#x27;/home/ganesh/Documents/IIITH/M-Tech/1-Sem/SCE/Projects/web2py/applications/OCJ/&#x27;, &#x27;/home/ganesh/Documents/IIITH/M-Tech/1-Sem/SCE/Projects/web2py/applications/admin/&#x27;])</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">applications_parent</td><td style="vertical-align:top;">:</td><td><div>/home/ganesh/Documents/IIITH/M-Tech/1-Sem/SCE/Projects/web2py</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">cmd_args</td><td style="vertical-align:top;">:</td><td><div><table></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">cmd_options</td><td style="vertical-align:top;">:</td><td><div>&lt;Values at 0x7fc922fb0560: {&#x27;verbose&#x27;: False, &#x27;ip&#x27;: &#x27;127.0.0.1&#x27;, &#x27;debuglevel&#x27;: 30, &#x27;with_scheduler&#x27;: False, &#x27;ips&#x27;: [&#x27;127.0.1.1&#x27;], &#x27;shutdown_timeout&#x27;: 5, &#x27;taskbar&#x27;: False, &#x27;with_coverage&#x27;: False, &#x27;scheduler_groups&#x27;: None, &#x27;port&#x27;: 8000, &#x27;maxthreads&#x27;: None, &#x27;softcron&#x27;: False, &#x27;server_name&#x27;: &#x27;GANESH-PC&#x27;, &#x27;bpython&#x27;: False, &#x27;nogui&#x27;: False, &#x27;pid_filename&#x27;: &#x27;httpserver.pid&#x27;, &#x27;print_errors&#x27;: False, &#x27;extcron&#x27;: False, &#x27;runcron&#x27;: False, &#x27;run_system_tests&#x27;: False, &#x27;test&#x27;: None, &#x27;folder&#x27;: &#x27;/home/ganesh/Documents/IIITH/M-Tech/1-Sem/SCE/Projects/web2py&#x27;, &#x27;config&#x27;: &#x27;&#x27;, &#x27;minthreads&#x27;: None, &#x27;shell&#x27;: None, &#x27;run&#x27;: &#x27;&#x27;, &#x27;log_filename&#x27;: &#x27;httpserver.log&#x27;, &#x27;profiler_dir&#x27;: None, &#x27;args&#x27;: [&#x27;&#x27;], &#x27;socket_timeout&#x27;: 5, &#x27;ssl_ca_certificate&#x27;: None, &#x27;scheduler&#x27;: None, &#x27;interfaces&#x27;: None, &#x27;ssl_private_key&#x27;: &#x27;&#x27;, &#x27;gae&#x27;: None, &#x27;password&#x27;: &#x27;&lt;ask&gt;&#x27;, &#x27;request_queue_size&#x27;: 5, &#x27;ssl_certificate&#x27;: &#x27;&#x27;, &#x27;cronjob&#x27;: False, &#x27;numthreads&#x27;: None, &#x27;quiet&#x27;: False, &#x27;import_models&#x27;: False, &#x27;timeout&#x27;: 10, &#x27;plain&#x27;: False, &#x27;nobanner&#x27;: False}&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">content_length</td><td style="vertical-align:top;">:</td><td><div>1114</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">content_type</td><td style="vertical-align:top;">:</td><td><div>multipart/form-data; boundary=----WebKitFormBoundaryZsVRKzu64f8AI5XN</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">db_sessions</td><td style="vertical-align:top;">:</td><td><div>set([])</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">debugging</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">gluon_parent</td><td style="vertical-align:top;">:</td><td><div>/home/ganesh/Documents/IIITH/M-Tech/1-Sem/SCE/Projects/web2py</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">http_accept</td><td style="vertical-align:top;">:</td><td><div>text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">http_accept_encoding</td><td style="vertical-align:top;">:</td><td><div>gzip, deflate</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">http_accept_language</td><td style="vertical-align:top;">:</td><td><div>en-US,en;q=0.8,hi;q=0.6</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">http_cache_control</td><td style="vertical-align:top;">:</td><td><div>max-age=0</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">http_connection</td><td style="vertical-align:top;">:</td><td><div>keep-alive</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">http_content_length</td><td style="vertical-align:top;">:</td><td><div>1114</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">http_content_type</td><td style="vertical-align:top;">:</td><td><div>multipart/form-data; boundary=----WebKitFormBoundaryZsVRKzu64f8AI5XN</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">http_cookie</td><td style="vertical-align:top;">:</td><td><div>session_id_code_gb=127.0.0.1-b198294c-22ea-451d-b7b8-374e0776d440; session_id_welcome=127.0.0.1-8ef9e736-438d-43bd-9c26-c899cb2edd57; session_id_admin=127.0.0.1-3fcee496-ef33-4cc2-9126-d7be8f615cfe; session_id_ocj=127.0.0.1-788ff837-a4ce-43af-98fd-a016b20cf5ec</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">http_host</td><td style="vertical-align:top;">:</td><td><div>127.0.0.1:8000</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">http_origin</td><td style="vertical-align:top;">:</td><td><div>http://127.0.0.1:8000</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">http_referer</td><td style="vertical-align:top;">:</td><td><div>http://127.0.0.1:8000/OCJ/default/addcontest</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">http_upgrade_insecure_requests</td><td style="vertical-align:top;">:</td><td><div>1</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">http_user_agent</td><td style="vertical-align:top;">:</td><td><div>Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.86 Safari/537.36</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">is_jython</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">is_pypy</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">is_source</td><td style="vertical-align:top;">:</td><td><div>True</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">local_hosts</td><td style="vertical-align:top;">:</td><td><div><table><tr><td><div>::1</div></td></tr><tr><td><div>127.0.1.1</div></td></tr><tr><td><div>::ffff:127.0.0.1</div></td></tr><tr><td><div>127.0.0.1</div></td></tr><tr><td><div>GANESH-PC</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">path_info</td><td style="vertical-align:top;">:</td><td><div>/OCJ/default/addContestDetails</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">query_string</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">remote_addr</td><td style="vertical-align:top;">:</td><td><div>127.0.0.1</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">remote_port</td><td style="vertical-align:top;">:</td><td><div>57132</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">request_method</td><td style="vertical-align:top;">:</td><td><div>POST</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">request_uri</td><td style="vertical-align:top;">:</td><td><div>/OCJ/default/addContestDetails</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">script_name</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">server_name</td><td style="vertical-align:top;">:</td><td><div>GANESH-PC</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">server_port</td><td style="vertical-align:top;">:</td><td><div>8000</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">server_protocol</td><td style="vertical-align:top;">:</td><td><div>HTTP/1.1</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">server_software</td><td style="vertical-align:top;">:</td><td><div>Rocket 1.2.6</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">web2py_path</td><td style="vertical-align:top;">:</td><td><div>/home/ganesh/Documents/IIITH/M-Tech/1-Sem/SCE/Projects/web2py</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">web2py_version</td><td style="vertical-align:top;">:</td><td><div>2.12.3-stable+timestamp.2015.08.19.00.18.03</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi.errors</td><td style="vertical-align:top;">:</td><td><div>&lt;open file &#x27;&lt;stderr&gt;&#x27;, mode &#x27;w&#x27; at 0x7fc929d6f1e0&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi.file_wrapper</td><td style="vertical-align:top;">:</td><td><div>&lt;class wsgiref.util.FileWrapper at 0x7fc92304f050&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi.input</td><td style="vertical-align:top;">:</td><td><div>&lt;socket._fileobject object at 0x7fc8f1095bd0&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi.multiprocess</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi.multithread</td><td style="vertical-align:top;">:</td><td><div>True</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi.run_once</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi.url_scheme</td><td style="vertical-align:top;">:</td><td><div>http</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi.version</td><td style="vertical-align:top;">:</td><td><div><table><tr><td><div>1</div></td></tr><tr><td><div>0</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi_errors</td><td style="vertical-align:top;">:</td><td><div>&lt;open file &#x27;&lt;stderr&gt;&#x27;, mode &#x27;w&#x27; at 0x7fc929d6f1e0&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi_file_wrapper</td><td style="vertical-align:top;">:</td><td><div>&lt;class wsgiref.util.FileWrapper at 0x7fc92304f050&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi_input</td><td style="vertical-align:top;">:</td><td><div>&lt;socket._fileobject object at 0x7fc8f1095bd0&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi_multiprocess</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi_multithread</td><td style="vertical-align:top;">:</td><td><div>True</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi_run_once</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi_url_scheme</td><td style="vertical-align:top;">:</td><td><div>http</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi_version</td><td style="vertical-align:top;">:</td><td><div><table><tr><td><div>1</div></td></tr><tr><td><div>0</div></td></tr></table></div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">extension</td><td style="vertical-align:top;">:</td><td><div>html</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">folder</td><td style="vertical-align:top;">:</td><td><div>/home/ganesh/Documents/IIITH/M-Tech/1-Sem/SCE/Projects/web2py/applications/OCJ/</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">function</td><td style="vertical-align:top;">:</td><td><div>addContestDetails</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">global_settings</td><td style="vertical-align:top;">:</td><td><div><table><tr><td style="font-weight:bold;vertical-align:top;">app_folders</td><td style="vertical-align:top;">:</td><td><div>set([&#x27;/home/ganesh/Documents/IIITH/M-Tech/1-Sem/SCE/Projects/web2py/applications/welcome/&#x27;, &#x27;/home/ganesh/Documents/IIITH/M-Tech/1-Sem/SCE/Projects/web2py/applications/OCJ/&#x27;, &#x27;/home/ganesh/Documents/IIITH/M-Tech/1-Sem/SCE/Projects/web2py/applications/admin/&#x27;])</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">applications_parent</td><td style="vertical-align:top;">:</td><td><div>/home/ganesh/Documents/IIITH/M-Tech/1-Sem/SCE/Projects/web2py</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">cmd_args</td><td style="vertical-align:top;">:</td><td><div><table></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">cmd_options</td><td style="vertical-align:top;">:</td><td><div>&lt;Values at 0x7fc922fb0560: {&#x27;verbose&#x27;: False, &#x27;ip&#x27;: &#x27;127.0.0.1&#x27;, &#x27;debuglevel&#x27;: 30, &#x27;with_scheduler&#x27;: False, &#x27;ips&#x27;: [&#x27;127.0.1.1&#x27;], &#x27;shutdown_timeout&#x27;: 5, &#x27;taskbar&#x27;: False, &#x27;with_coverage&#x27;: False, &#x27;scheduler_groups&#x27;: None, &#x27;port&#x27;: 8000, &#x27;maxthreads&#x27;: None, &#x27;softcron&#x27;: False, &#x27;server_name&#x27;: &#x27;GANESH-PC&#x27;, &#x27;bpython&#x27;: False, &#x27;nogui&#x27;: False, &#x27;pid_filename&#x27;: &#x27;httpserver.pid&#x27;, &#x27;print_errors&#x27;: False, &#x27;extcron&#x27;: False, &#x27;runcron&#x27;: False, &#x27;run_system_tests&#x27;: False, &#x27;test&#x27;: None, &#x27;folder&#x27;: &#x27;/home/ganesh/Documents/IIITH/M-Tech/1-Sem/SCE/Projects/web2py&#x27;, &#x27;config&#x27;: &#x27;&#x27;, &#x27;minthreads&#x27;: None, &#x27;shell&#x27;: None, &#x27;run&#x27;: &#x27;&#x27;, &#x27;log_filename&#x27;: &#x27;httpserver.log&#x27;, &#x27;profiler_dir&#x27;: None, &#x27;args&#x27;: [&#x27;&#x27;], &#x27;socket_timeout&#x27;: 5, &#x27;ssl_ca_certificate&#x27;: None, &#x27;scheduler&#x27;: None, &#x27;interfaces&#x27;: None, &#x27;ssl_private_key&#x27;: &#x27;&#x27;, &#x27;gae&#x27;: None, &#x27;password&#x27;: &#x27;&lt;ask&gt;&#x27;, &#x27;request_queue_size&#x27;: 5, &#x27;ssl_certificate&#x27;: &#x27;&#x27;, &#x27;cronjob&#x27;: False, &#x27;numthreads&#x27;: None, &#x27;quiet&#x27;: False, &#x27;import_models&#x27;: False, &#x27;timeout&#x27;: 10, &#x27;plain&#x27;: False, &#x27;nobanner&#x27;: False}&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">db_sessions</td><td style="vertical-align:top;">:</td><td><div>set([])</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">debugging</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">gluon_parent</td><td style="vertical-align:top;">:</td><td><div>/home/ganesh/Documents/IIITH/M-Tech/1-Sem/SCE/Projects/web2py</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">is_jython</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">is_pypy</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">is_source</td><td style="vertical-align:top;">:</td><td><div>True</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">local_hosts</td><td style="vertical-align:top;">:</td><td><div><table><tr><td><div>::1</div></td></tr><tr><td><div>127.0.1.1</div></td></tr><tr><td><div>::ffff:127.0.0.1</div></td></tr><tr><td><div>127.0.0.1</div></td></tr><tr><td><div>GANESH-PC</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">web2py_version</td><td style="vertical-align:top;">:</td><td><div>2.12.3-stable+timestamp.2015.08.19.00.18.03</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">is_https</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">is_local</td><td style="vertical-align:top;">:</td><td><div>True</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">is_restful</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">is_sheduler</td><td style="vertical-align:top;">:</td><td><div>None</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">is_shell</td><td style="vertical-align:top;">:</td><td><div>None</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">now</td><td style="vertical-align:top;">:</td><td><div>datetime.datetime(2015, 11, 21, 15, 21, 34, 415804)</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">raw_args</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">raw_extension</td><td style="vertical-align:top;">:</td><td><div>None</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">url</td><td style="vertical-align:top;">:</td><td><div>/OCJ/default/addContestDetails</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">utcnow</td><td style="vertical-align:top;">:</td><td><div>datetime.datetime(2015, 11, 21, 9, 51, 34, 415839)</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi</td><td style="vertical-align:top;">:</td><td><div>&lt;gluon.main.LazyWSGI object at 0x7fc9106e2110&gt;</div></td></tr></table></div>'
+tRp58
+sS'frames'
+p59
+(lp60
+(dp61
+S'file'
+p62
+S'/home/ganesh/Documents/IIITH/M-Tech/1-Sem/SCE/Projects/web2py/gluon/restricted.py'
+p63
+sS'dump'
+p64
+(dp65
+S'environment'
+p66
+S"{'A': <class 'gluon.html.A'>, 'ANY_OF': <class 'gluon.validators.ANY_OF'>, 'ASSIGNJS': <function ASSIGNJS>, 'AppConfig': <function AppConfig>, 'Auth': <class 'gluon.tools.Auth'>, 'B': <class 'gluon.html.B'>, 'BEAUTIFY': <class 'gluon.html.BEAUTIFY'>, 'BODY': <class 'gluon.html.BODY'>, 'BR': <class 'gluon.html.BR'>, 'BUTTON': <class 'gluon.html.BUTTON'>, ...}"
+p67
+sS'ccode'
+p68
+S'<code object <module> at 0x7fc9106919b0, file "/...applications/OCJ/controllers/default.py", line 1>'
+p69
+ssS'lnum'
+p70
+I227
+sS'lines'
+p71
+(dp72
+I224
+S'            ccode = code'
+p73
+sI225
+S'        else:'
+p74
+sI226
+S'            ccode = compile2(code, layer)'
+p75
+sI227
+S'        exec ccode in environment'
+p76
+sI228
+S'    except HTTP:'
+p77
+sI229
+S'        raise'
+p78
+sI230
+S'    except RestrictedError:'
+p79
+sI231
+S'        # do not encapsulate (obfuscate) the original RestrictedError'
+p80
+sI222
+S'    try:'
+p81
+sI223
+S'        if isinstance(code, types.CodeType):'
+p82
+ssS'call'
+p83
+S"(code='import os\\nimport commands\\n\\n\\n@auth.requires_login...sponse._vars=response._caller(addContestDetails)\\n', environment={'A': <class 'gluon.html.A'>, 'ANY_OF': <class 'gluon.validators.ANY_OF'>, 'ASSIGNJS': <function ASSIGNJS>, 'AppConfig': <function AppConfig>, 'Auth': <class 'gluon.tools.Auth'>, 'B': <class 'gluon.html.B'>, 'BEAUTIFY': <class 'gluon.html.BEAUTIFY'>, 'BODY': <class 'gluon.html.BODY'>, 'BR': <class 'gluon.html.BR'>, 'BUTTON': <class 'gluon.html.BUTTON'>, ...}, layer='/home/ganesh/Documents/IIITH/M-Tech/1-Sem/SCE/Pr...ts/web2py/applications/OCJ/controllers/default.py')"
+p84
+sS'func'
+p85
+S'restricted'
+p86
+sa(dp87
+g62
+S'/home/ganesh/Documents/IIITH/M-Tech/1-Sem/SCE/Projects/web2py/applications/OCJ/controllers/default.py'
+p88
+sg64
+(dp89
+sg70
+I328
+sg71
+(dp90
+I320
+S'    """'
+p91
+sI321
+S'    exposes services. for example:'
+p92
+sI322
+S'    http://..../[app]/default/call/jsonrpc'
+p93
+sI323
+S'    decorate with @services.jsonrpc the functions to expose'
+p94
+sI324
+S'    supports xml, json, xmlrpc, jsonrpc, amfrpc, rss, csv'
+p95
+sI325
+S'    """'
+p96
+sI326
+S'    return service()'
+p97
+sI317
+S''
+sI318
+S''
+sI319
+S'def call():'
+p98
+ssg83
+S'()'
+p99
+sg85
+S'<module>'
+p100
+sa(dp101
+g62
+S'/home/ganesh/Documents/IIITH/M-Tech/1-Sem/SCE/Projects/web2py/gluon/globals.py'
+p102
+sg64
+(dp103
+S'self'
+p104
+S'undefined'
+p105
+sS'f'
+S'<function addContestDetails>'
+p106
+ssg70
+I412
+sg71
+(dp107
+I416
+S"        self.generic_patterns = ['*']"
+p108
+sI407
+S"        self.flash = ''            # used by the default view layout"
+p109
+sI408
+S'        self.meta = Storage()      # used by web2py_ajax.html'
+p110
+sI409
+S'        self.menu = []             # used by the default view layout'
+p111
+sI410
+S'        self.files = []            # used by web2py_ajax.html'
+p112
+sI411
+S'        self._vars = None'
+p113
+sI412
+S'        self._caller = lambda f: f()'
+p114
+sI413
+S'        self._view_environment = None'
+p115
+sI414
+S'        self._custom_commit = None'
+p116
+sI415
+S'        self._custom_rollback = None'
+p117
+ssg83
+S'(f=<function addContestDetails>)'
+p118
+sg85
+S'<lambda>'
+p119
+sa(dp120
+g62
+S'/home/ganesh/Documents/IIITH/M-Tech/1-Sem/SCE/Projects/web2py/applications/OCJ/controllers/default.py'
+p121
+sg64
+(dp122
+S'testCaseAns_1_1'
+p123
+S"FieldStorage('testCaseAns_1_1', 'output.txt', '8\\n30\\n')"
+p124
+sS'output1'
+p125
+g105
+ssg70
+I243
+sg71
+(dp126
+I238
+S'                                            questionNumber = questionNumber, \\'
+p127
+sI239
+S'                                            questionName = questionName, \\'
+p128
+sI240
+S'                                            questionText = questionText_1, \\'
+p129
+sI241
+S'                                            noOfTestCases = noOfTestCases_1, \\'
+p130
+sI242
+S'                                            testCase1 = testCase_1_1, \\'
+p131
+sI243
+S'                                            output1 = testCaseAns_1_1 )'
+p132
+sI244
+S''
+sI245
+S'    return locals()'
+p133
+sI246
+S''
+sI247
+S''
+ssg83
+S'()'
+p134
+sg85
+S'addContestDetails'
+p135
+sa(dp136
+g62
+S'/home/ganesh/Documents/IIITH/M-Tech/1-Sem/SCE/Projects/web2py/gluon/packages/dal/pydal/objects.py'
+p137
+sg64
+(dp138
+S'self._listify'
+p139
+S'<bound method Table._listify of <Table ocj_conte...e,questionText,noOfTestCases,testCase1,output1)>>'
+p140
+sS'fields'
+p141
+S"{'contestID': ['171', 'adsfasdfasdf'], 'noOfTestCases': '1', 'output1': 'ocj_contests_questions.output1.a9549026ffa7f5b9.6f75747075742e747874.txt', 'questionName': 'adffasdfasdfs', 'questionNumber': '1', 'questionText': 'Enter question text here...', 'testCase1': 'ocj_contests_questions.testCase1.b03199c1c8857dd2.74657374636173652e747874.txt'}"
+p142
+sS'self'
+p143
+S'<Table ocj_contests_questions (id,contestID,ques...me,questionText,noOfTestCases,testCase1,output1)>'
+p144
+sS'ret'
+p145
+g105
+sS'self._db._adapter'
+p146
+S'<pydal.adapters.sqlite.SQLiteAdapter object>'
+p147
+sS'self._db._adapter.insert'
+p148
+S'<bound method SQLiteAdapter.insert of <pydal.adapters.sqlite.SQLiteAdapter object>>'
+p149
+sS'self._db'
+p150
+S'<DAL uri="sqlite://storage.sqlite">'
+p151
+ssg70
+I712
+sg71
+(dp152
+I707
+S'    def insert(self, **fields):'
+p153
+sI708
+S'        fields = self._defaults(fields)'
+p154
+sI709
+S'        self._attempt_upload(fields)'
+p155
+sI710
+S'        if any(f(fields) for f in self._before_insert):'
+p156
+sI711
+S'            return 0'
+p157
+sI712
+S'        ret = self._db._adapter.insert(self, self._listify(fields))'
+p158
+sI713
+S'        if ret and self._after_insert:'
+p159
+sI714
+S'            fields = Row(fields)'
+p160
+sI715
+S'            [f(fields, ret) for f in self._after_insert]'
+p161
+sI716
+S'        return ret'
+p162
+ssg83
+S"(self=<Table ocj_contests_questions (id,contestID,ques...me,questionText,noOfTestCases,testCase1,output1)>, **fields={'contestID': ['171', 'adsfasdfasdf'], 'noOfTestCases': '1', 'output1': 'ocj_contests_questions.output1.a9549026ffa7f5b9.6f75747075742e747874.txt', 'questionName': 'adffasdfasdfs', 'questionNumber': '1', 'questionText': 'Enter question text here...', 'testCase1': 'ocj_contests_questions.testCase1.b03199c1c8857dd2.74657374636173652e747874.txt'})"
+p163
+sg85
+S'insert'
+p164
+sa(dp165
+g62
+S'/home/ganesh/Documents/IIITH/M-Tech/1-Sem/SCE/Projects/web2py/gluon/packages/dal/pydal/adapters/base.py'
+p166
+sg64
+(dp167
+S'self._insert'
+p168
+S'<bound method SQLiteAdapter._insert of <pydal.adapters.sqlite.SQLiteAdapter object>>'
+p169
+sS'query'
+p170
+g105
+sS'self'
+p171
+S'<pydal.adapters.sqlite.SQLiteAdapter object>'
+p172
+sS'fields'
+p173
+S"[(<pydal.objects.Field object>, '1'), (<pydal.objects.Field object>, 'Enter question text here...'), (<pydal.objects.Field object>, 'adffasdfasdfs'), (<pydal.objects.Field object>, 'ocj_contests_questions.output1.a9549026ffa7f5b9.6f75747075742e747874.txt'), (<pydal.objects.Field object>, '1'), (<pydal.objects.Field object>, ['171', 'adsfasdfasdf']), (<pydal.objects.Field object>, 'ocj_contests_questions.testCase1.b03199c1c8857dd2.74657374636173652e747874.txt')]"
+p174
+sS'table'
+p175
+S'<Table ocj_contests_questions (id,contestID,ques...me,questionText,noOfTestCases,testCase1,output1)>'
+p176
+ssg70
+I732
+sg71
+(dp177
+I736
+S'            e = sys.exc_info()[1]'
+p178
+sI727
+S''
+sI728
+S'    def _insert_empty(self, table):'
+p179
+sI729
+S"        return 'INSERT INTO %s DEFAULT VALUES;' % (table.sqlsafe)"
+p180
+sI730
+S''
+sI731
+S'    def insert(self, table, fields):'
+p181
+sI732
+S'        query = self._insert(table,fields)'
+p182
+sI733
+S'        try:'
+p183
+sI734
+S'            self.execute(query)'
+p184
+sI735
+S'        except Exception:'
+p185
+ssg83
+S"(self=<pydal.adapters.sqlite.SQLiteAdapter object>, table=<Table ocj_contests_questions (id,contestID,ques...me,questionText,noOfTestCases,testCase1,output1)>, fields=[(<pydal.objects.Field object>, '1'), (<pydal.objects.Field object>, 'Enter question text here...'), (<pydal.objects.Field object>, 'adffasdfasdfs'), (<pydal.objects.Field object>, 'ocj_contests_questions.output1.a9549026ffa7f5b9.6f75747075742e747874.txt'), (<pydal.objects.Field object>, '1'), (<pydal.objects.Field object>, ['171', 'adsfasdfasdf']), (<pydal.objects.Field object>, 'ocj_contests_questions.testCase1.b03199c1c8857dd2.74657374636173652e747874.txt')])"
+p186
+sg85
+g164
+sa(dp187
+g62
+S'/home/ganesh/Documents/IIITH/M-Tech/1-Sem/SCE/Projects/web2py/gluon/packages/dal/pydal/adapters/base.py'
+p188
+sg64
+(dp189
+S'f'
+g105
+sS'fields'
+p190
+S"[(<pydal.objects.Field object>, '1'), (<pydal.objects.Field object>, 'Enter question text here...'), (<pydal.objects.Field object>, 'adffasdfasdfs'), (<pydal.objects.Field object>, 'ocj_contests_questions.output1.a9549026ffa7f5b9.6f75747075742e747874.txt'), (<pydal.objects.Field object>, '1'), (<pydal.objects.Field object>, ['171', 'adsfasdfasdf']), (<pydal.objects.Field object>, 'ocj_contests_questions.testCase1.b03199c1c8857dd2.74657374636173652e747874.txt')]"
+p191
+sS'self'
+p192
+S'<pydal.adapters.sqlite.SQLiteAdapter object>'
+p193
+sS'values'
+p194
+g105
+sS'v'
+g105
+sS'self.expand'
+p195
+S'<bound method SQLiteAdapter.expand of <pydal.adapters.sqlite.SQLiteAdapter object>>'
+p196
+ssg70
+I723
+sg71
+(dp197
+I718
+S''
+sI719
+S'    def _insert(self, table, fields):'
+p198
+sI720
+S'        table_rname = table.sqlsafe'
+p199
+sI721
+S'        if fields:'
+p200
+sI722
+S"            keys = ','.join(f.sqlsafe_name for f, v in fields)"
+p201
+sI723
+S"            values = ','.join(self.expand(v, f.type) for f, v in fields)"
+p202
+sI724
+S"            return 'INSERT INTO %s(%s) VALUES (%s);' % (table_rname, keys, values)"
+p203
+sI725
+S'        else:'
+p204
+sI726
+S'            return self._insert_empty(table)'
+p205
+sI727
+S''
+ssg83
+S"(self=<pydal.adapters.sqlite.SQLiteAdapter object>, table=<Table ocj_contests_questions (id,contestID,ques...me,questionText,noOfTestCases,testCase1,output1)>, fields=[(<pydal.objects.Field object>, '1'), (<pydal.objects.Field object>, 'Enter question text here...'), (<pydal.objects.Field object>, 'adffasdfasdfs'), (<pydal.objects.Field object>, 'ocj_contests_questions.output1.a9549026ffa7f5b9.6f75747075742e747874.txt'), (<pydal.objects.Field object>, '1'), (<pydal.objects.Field object>, ['171', 'adsfasdfasdf']), (<pydal.objects.Field object>, 'ocj_contests_questions.testCase1.b03199c1c8857dd2.74657374636173652e747874.txt')])"
+p206
+sg85
+S'_insert'
+p207
+sa(dp208
+g62
+S'/home/ganesh/Documents/IIITH/M-Tech/1-Sem/SCE/Projects/web2py/gluon/packages/dal/pydal/adapters/base.py'
+p209
+sg64
+(dp210
+S'f'
+S'<pydal.objects.Field object>'
+p211
+sS'fields'
+p212
+g105
+sS'self'
+p213
+S'<pydal.adapters.sqlite.SQLiteAdapter object>'
+p214
+sS'f.type'
+p215
+S"'integer'"
+p216
+sS'values'
+p217
+g105
+sS'v'
+S"['171', 'adsfasdfasdf']"
+p218
+sS'self.expand'
+p219
+S'<bound method SQLiteAdapter.expand of <pydal.adapters.sqlite.SQLiteAdapter object>>'
+p220
+ssg70
+I723
+sg71
+(dp221
+I718
+S''
+sI719
+S'    def _insert(self, table, fields):'
+p222
+sI720
+S'        table_rname = table.sqlsafe'
+p223
+sI721
+S'        if fields:'
+p224
+sI722
+S"            keys = ','.join(f.sqlsafe_name for f, v in fields)"
+p225
+sI723
+S"            values = ','.join(self.expand(v, f.type) for f, v in fields)"
+p226
+sI724
+S"            return 'INSERT INTO %s(%s) VALUES (%s);' % (table_rname, keys, values)"
+p227
+sI725
+S'        else:'
+p228
+sI726
+S'            return self._insert_empty(table)'
+p229
+sI727
+S''
+ssg83
+S"((f=<pydal.objects.Field object>, v=['171', 'adsfasdfasdf']))"
+p230
+sg85
+S'<genexpr>'
+p231
+sa(dp232
+g62
+S'/home/ganesh/Documents/IIITH/M-Tech/1-Sem/SCE/Projects/web2py/gluon/packages/dal/pydal/adapters/base.py'
+p233
+sg64
+(dp234
+S'self.represent'
+p235
+S'<bound method SQLiteAdapter.represent of <pydal.adapters.sqlite.SQLiteAdapter object>>'
+p236
+sS'rv'
+p237
+g105
+sS'expression'
+p238
+S"['171', 'adsfasdfasdf']"
+p239
+sS'self'
+p240
+S'<pydal.adapters.sqlite.SQLiteAdapter object>'
+p241
+sS'field_type'
+p242
+S"'integer'"
+p243
+ssg70
+I955
+sg71
+(dp244
+I950
+S'                    op = op[:-1]'
+p245
+sI951
+S"                rv = '(%s)' % op"
+p246
+sI952
+S'            else:'
+p247
+sI953
+S'                rv = op()'
+p248
+sI954
+S'        elif field_type:'
+p249
+sI955
+S'            rv = self.represent(expression, field_type)'
+p250
+sI956
+S'        elif isinstance(expression, (list, tuple)):'
+p251
+sI957
+S"            rv = ','.join(self.represent(item, field_type)"
+p252
+sI958
+S'                          for item in expression)'
+p253
+sI959
+S'        elif isinstance(expression, bool):'
+p254
+ssg83
+S"(self=<pydal.adapters.sqlite.SQLiteAdapter object>, expression=['171', 'adsfasdfasdf'], field_type='integer', colnames=False)"
+p255
+sg85
+S'expand'
+p256
+sa(dp257
+g62
+S'/home/ganesh/Documents/IIITH/M-Tech/1-Sem/SCE/Projects/web2py/gluon/packages/dal/pydal/adapters/base.py'
+p258
+sg64
+(dp259
+S'builtinstr'
+p260
+S"<type 'str'>"
+p261
+sS'global long'
+p262
+S"<type 'long'>"
+p263
+sS'obj'
+p264
+S"'|171|adsfasdfasdf|'"
+p265
+ssg70
+I1425
+sg71
+(dp266
+I1420
+S"            if obj and not str(obj)[:1].upper() in '0F':"
+p267
+sI1421
+S'                return self.smart_adapt(self.TRUE)'
+p268
+sI1422
+S'            else:'
+p269
+sI1423
+S'                return self.smart_adapt(self.FALSE)'
+p270
+sI1424
+S"        if fieldtype == 'id' or fieldtype == 'integer':"
+p271
+sI1425
+S'            return str(long(obj))'
+p272
+sI1426
+S"        if field_is_type('decimal'):"
+p273
+sI1427
+S'            return str(obj)'
+p274
+sI1428
+S"        elif field_is_type('reference'): # reference"
+p275
+sI1429
+S'            # check for tablename first'
+p276
+ssg83
+S"(self=<pydal.adapters.sqlite.SQLiteAdapter object>, obj='|171|adsfasdfasdf|', fieldtype='integer')"
+p277
+sg85
+S'represent'
+p278
+sasS'pyver'
+p279
+S'Python 2.7.6: /usr/bin/python (prefix: /usr)'
+p280
+sS'session'
+p281
+g57
+(S'sL\r\x00\x00<div><table><tr><td style="font-weight:bold;vertical-align:top;">auth</td><td style="vertical-align:top;">:</td><td><div><table><tr><td style="font-weight:bold;vertical-align:top;">expiration</td><td style="vertical-align:top;">:</td><td><div>3600</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">hmac_key</td><td style="vertical-align:top;">:</td><td><div>c4ee3101-aea4-4ce7-b944-6cc2ae671522</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">last_visit</td><td style="vertical-align:top;">:</td><td><div>datetime.datetime(2015, 11, 21, 15, 17, 17, 166571)</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">remember_me</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">user</td><td style="vertical-align:top;">:</td><td><div><table><tr><td style="font-weight:bold;vertical-align:top;">email</td><td style="vertical-align:top;">:</td><td><div>ganesh.borle@gmail.com</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">first_name</td><td style="vertical-align:top;">:</td><td><div>Ganesh</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">handle</td><td style="vertical-align:top;">:</td><td><div>NapdaN</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">id</td><td style="vertical-align:top;">:</td><td><div>4L</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">last_name</td><td style="vertical-align:top;">:</td><td><div>Borle</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">registration_id</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">registration_key</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">reset_password_key</td><td style="vertical-align:top;">:</td><td><div></div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">user_groups</td><td style="vertical-align:top;">:</td><td><div><table><tr><td style="font-weight:bold;vertical-align:top;">3</td><td style="vertical-align:top;">:</td><td><div>user_4</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">4</td><td style="vertical-align:top;">:</td><td><div>host_admin</div></td></tr></table></div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">flash</td><td style="vertical-align:top;">:</td><td><div>None</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">handle</td><td style="vertical-align:top;">:</td><td><div>NapdaN</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">isFromChallengesPage</td><td style="vertical-align:top;">:</td><td><div>1</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">last_orderby</td><td style="vertical-align:top;">:</td><td><div>None</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">last_query</td><td style="vertical-align:top;">:</td><td><div>db.ocj_contests_questions.id&gt;0</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">userName</td><td style="vertical-align:top;">:</td><td><div>Ganesh</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wasOnAddContestForm</td><td style="vertical-align:top;">:</td><td><div>0</div></td></tr></table></div>'
+tRp282
+sS'etype'
+p283
+S"<type 'exceptions.ValueError'>"
+p284
+sS'date'
+p285
+S'Sat Nov 21 15:21:34 2015'
+p286
+sS'response'
+p287
+g57
+(S's_\x1f\x00\x00<div><table><tr><td style="font-weight:bold;vertical-align:top;">body</td><td style="vertical-align:top;">:</td><td><div>&lt;cStringIO.StringO object at 0x7fc8f1c757d8&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">cookies</td><td style="vertical-align:top;">:</td><td><div><table><tr><td style="font-weight:bold;vertical-align:top;">session_id_ocj</td><td style="vertical-align:top;">:</td><td><div>127.0.0.1-788ff837-a4ce-43af-98fd-a016b20cf5ec<table><tr><td style="font-weight:bold;vertical-align:top;">comment</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">domain</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">expires</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">httponly</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">max-age</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">path</td><td style="vertical-align:top;">:</td><td><div>/</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">secure</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">version</td><td style="vertical-align:top;">:</td><td><div></div></td></tr></table></div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">delimiters</td><td style="vertical-align:top;">:</td><td><div><table><tr><td><div>{{</div></td></tr><tr><td><div>}}</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">files</td><td style="vertical-align:top;">:</td><td><div><table></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">flash</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">form_label_separator</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">formstyle</td><td style="vertical-align:top;">:</td><td><div>bootstrap3_inline</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">generic_patterns</td><td style="vertical-align:top;">:</td><td><div><table><tr><td><div>*</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">google_analytics_id</td><td style="vertical-align:top;">:</td><td><div>None</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">headers</td><td style="vertical-align:top;">:</td><td><div><table><tr><td style="font-weight:bold;vertical-align:top;">X-Powered-By</td><td style="vertical-align:top;">:</td><td><div>web2py</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">logo</td><td style="vertical-align:top;">:</td><td><div><a class="navbar-brand" href="http://127.0.0.1:8000/OCJ/default/index" id="web2py-logo"><b>Code Spardha</b>&trade;&nbsp;</a></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">menu</td><td style="vertical-align:top;">:</td><td><div><table><tr><td><div><table><tr><td><div>Home</div></td></tr><tr><td><div>False</div></td></tr><tr><td><div>/OCJ/default/index</div></td></tr><tr><td><div><table></table></div></td></tr></table></div></td></tr><tr><td><div><table><tr><td><div>Running Contests</div></td></tr><tr><td><div>False</div></td></tr><tr><td><div>/OCJ/default/contests</div></td></tr></table></div></td></tr><tr><td><div><table><tr><td><div>Host/Manage Contests</div></td></tr><tr><td><div>False</div></td></tr><tr><td><div>/OCJ/default/hostcontest</div></td></tr></table></div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">meta</td><td style="vertical-align:top;">:</td><td><div><table><tr><td style="font-weight:bold;vertical-align:top;">author</td><td style="vertical-align:top;">:</td><td><div>Your Name &lt;you@example.com&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">description</td><td style="vertical-align:top;">:</td><td><div>a cool new app</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">generator</td><td style="vertical-align:top;">:</td><td><div>Web2py Web Framework</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">keywords</td><td style="vertical-align:top;">:</td><td><div>web2py, python, framework</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">models_to_run</td><td style="vertical-align:top;">:</td><td><div><table><tr><td><div>^\\w+\\.py$</div></td></tr><tr><td><div>^default/\\w+\\.py$</div></td></tr><tr><td><div>^default/addContestDetails/\\w+\\.py$</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">postprocessing</td><td style="vertical-align:top;">:</td><td><div><table></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_client</td><td style="vertical-align:top;">:</td><td><div>127.0.0.1</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_cookie_compression_level</td><td style="vertical-align:top;">:</td><td><div>None</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_cookie_expires</td><td style="vertical-align:top;">:</td><td><div>None</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_cookie_key</td><td style="vertical-align:top;">:</td><td><div>None</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_data_name</td><td style="vertical-align:top;">:</td><td><div>session_data_ocj</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_file</td><td style="vertical-align:top;">:</td><td><div>&lt;open file &#x27;/home/ganesh/Documents/IIITH/M-Tech/1-Sem/SCE/Projects/web2py/applications/OCJ/sessions/192/0bc/127.0.0.1-788ff837-a4ce-43af-98fd-a016b20cf5ec&#x27;, mode &#x27;rb+&#x27; at 0x7fc910793030&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_filename</td><td style="vertical-align:top;">:</td><td><div>/home/ganesh/Documents/IIITH/M-Tech/1-Sem/SCE/Projects/web2py/applications/OCJ/sessions/127.0.0.1-788ff837-a4ce-43af-98fd-a016b20cf5ec</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_hash</td><td style="vertical-align:top;">:</td><td><div>bec4f33e0899900e380c10a9e3feddb2</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_id</td><td style="vertical-align:top;">:</td><td><div>127.0.0.1-788ff837-a4ce-43af-98fd-a016b20cf5ec</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_id_name</td><td style="vertical-align:top;">:</td><td><div>session_id_ocj</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_locked</td><td style="vertical-align:top;">:</td><td><div>True</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_masterapp</td><td style="vertical-align:top;">:</td><td><div>OCJ</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_new</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_storage_type</td><td style="vertical-align:top;">:</td><td><div>file</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">status</td><td style="vertical-align:top;">:</td><td><div>200</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">subtitle</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">title</td><td style="vertical-align:top;">:</td><td><div>Ocj</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">view</td><td style="vertical-align:top;">:</td><td><div>default/addContestDetails.html</div></td></tr></table></div>'
+tRp288
+sS'locals'
+p289
+(dp290
+S'obj'
+p291
+S"'|171|adsfasdfasdf|'"
+p292
+sS'self'
+p293
+S'<pydal.adapters.sqlite.SQLiteAdapter object>'
+p294
+sS'field_is_type'
+p295
+S'<built-in method startswith of str object>'
+p296
+sS'r'
+S'None'
+p297
+sS'fieldtype'
+p298
+S"'integer'"
+p299
+sssS'traceback'
+p300
+S'Traceback (most recent call last):\n  File "/home/ganesh/Documents/IIITH/M-Tech/1-Sem/SCE/Projects/web2py/gluon/restricted.py", line 227, in restricted\n    exec ccode in environment\n  File "/home/ganesh/Documents/IIITH/M-Tech/1-Sem/SCE/Projects/web2py/applications/OCJ/controllers/default.py", line 328, in <module>\n  File "/home/ganesh/Documents/IIITH/M-Tech/1-Sem/SCE/Projects/web2py/gluon/globals.py", line 412, in <lambda>\n    self._caller = lambda f: f()\n  File "/home/ganesh/Documents/IIITH/M-Tech/1-Sem/SCE/Projects/web2py/applications/OCJ/controllers/default.py", line 243, in addContestDetails\n    output1 = testCaseAns_1_1 )\n  File "/home/ganesh/Documents/IIITH/M-Tech/1-Sem/SCE/Projects/web2py/gluon/packages/dal/pydal/objects.py", line 712, in insert\n    ret = self._db._adapter.insert(self, self._listify(fields))\n  File "/home/ganesh/Documents/IIITH/M-Tech/1-Sem/SCE/Projects/web2py/gluon/packages/dal/pydal/adapters/base.py", line 732, in insert\n    query = self._insert(table,fields)\n  File "/home/ganesh/Documents/IIITH/M-Tech/1-Sem/SCE/Projects/web2py/gluon/packages/dal/pydal/adapters/base.py", line 723, in _insert\n    values = \',\'.join(self.expand(v, f.type) for f, v in fields)\n  File "/home/ganesh/Documents/IIITH/M-Tech/1-Sem/SCE/Projects/web2py/gluon/packages/dal/pydal/adapters/base.py", line 723, in <genexpr>\n    values = \',\'.join(self.expand(v, f.type) for f, v in fields)\n  File "/home/ganesh/Documents/IIITH/M-Tech/1-Sem/SCE/Projects/web2py/gluon/packages/dal/pydal/adapters/base.py", line 955, in expand\n    rv = self.represent(expression, field_type)\n  File "/home/ganesh/Documents/IIITH/M-Tech/1-Sem/SCE/Projects/web2py/gluon/packages/dal/pydal/adapters/base.py", line 1425, in represent\n    return str(long(obj))\nValueError: invalid literal for long() with base 10: \'|171|adsfasdfasdf|\'\n'
+p301
+s.
