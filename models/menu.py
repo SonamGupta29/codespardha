@@ -4,9 +4,13 @@
 #########################################################################
 ## Customize your APP title, subtitle and menus here
 #########################################################################
+if auth.is_logged_in():
+    refstring = "http://127.0.0.1:8000/OCJ/default/home"
+else:
+    refstring = "http://127.0.0.1:8000/OCJ/default/index"
 
 response.logo = A(B('Code Spardha'),XML('&trade;&nbsp;'),
-                  _class="navbar-brand",_href="http://127.0.0.1:8000/OCJ/default/index",
+                  _class="navbar-brand",_href=refstring,
                   _id="web2py-logo")
 response.title = request.application.replace('_',' ').title()
 response.subtitle = ''
