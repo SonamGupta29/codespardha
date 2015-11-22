@@ -111,7 +111,7 @@ def challenges():
     db.ocj_contests_log.questionNumber.readable = False
 
     #Set the current Submission result as evaluating
-    db.ocj_contests_log.submissionResult.default = 'Evaluating'
+    db.ocj_contests_log.submissionResult.default = 'Wrong Answer'
     db.ocj_contests_log.submissionResult.writable = False
     db.ocj_contests_log.submissionResult.readable = False
 
@@ -151,10 +151,10 @@ def processSubmission():
     And this will only happen if the page is came from last page not refreshed, 
     coz page refresh will insert duplicate page
     """
-    id = db.ocj_contests_log.insert(questionNumber = qNumber, contestID = cID, \
-                                    code = cFile, questionName = qName, \
-                                    userID = auth.user_id, submissionTime = request.now, \
-                                    submissionResult = "Evaluating")
+    """id = db.ocj_contests_log.insert(questionNumber = qNumber, contestID = cID, \
+                                                code = cFile, questionName = qName, \
+                                                userID = auth.user_id, submissionTime = request.now, \
+                                                submissionResult = "Wrong Answer")"""
 
     CurrStatus = getFilePath()
     if session.isFromChallengesPage == 1:
